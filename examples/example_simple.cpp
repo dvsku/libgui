@@ -1,4 +1,4 @@
-#include <dv_gui_opengl.hpp>
+#include <libgui.hpp>
 #include <iostream>
 
 class app : public dvsku::dv_window {
@@ -18,7 +18,7 @@ int main() {
     dvsku::dv_window_settings settings;
     settings.width  = 1024;
     settings.height = 768;
-    settings.title  = "Simple " + dvsku::get_backend_type();
+    settings.title  = std::string("Simple ") + dvsku::get_backend_type();
 
     app app(settings);
     app.show();

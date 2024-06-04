@@ -1,4 +1,4 @@
-#include <dv_gui_opengl.hpp>
+#include <libgui.hpp>
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
 #include <iostream>
@@ -137,7 +137,7 @@ int main() {
     dvsku::dv_window_settings settings;
     settings.width  = 1024;
     settings.height = 768;
-    settings.title  = "Borderless " + dvsku::get_backend_type();
+    settings.title  = std::string("Borderless ") + dvsku::get_backend_type();
 
     app app(settings);
     app.show();

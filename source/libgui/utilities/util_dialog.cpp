@@ -1,4 +1,4 @@
-#include "dv_gui_opengl/dv_gui_opengl/utilities/dv_util_dialog.hpp"
+#include "libgui/utilities/util_dialog.hpp"
 #include "pfd/portable-file-dialogs.h"
 
 using namespace dvsku;

@@ -1,4 +1,4 @@
-#include "dv_gui_opengl/dv_gui_opengl/models/dv_command.hpp"
+#include "libgui/models/gui_command.hpp"
 
 using namespace dvsku;
 

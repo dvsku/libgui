@@ -1,4 +1,4 @@
-#include "dv_gui_opengl/dv_gui_opengl/models/dv_texture.hpp"
+#include "libgui/misc/texture.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>

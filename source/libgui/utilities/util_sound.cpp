@@ -1,4 +1,4 @@
-#include "dv_gui_opengl/dv_gui_opengl/utilities/dv_util_sound.hpp"
+#include "libgui/utilities/util_sound.hpp"
 
 #include <windows.h>
 #include <playsoundapi.h>

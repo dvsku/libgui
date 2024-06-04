@@ -6,9 +6,9 @@
 #include <stdexcept>
 #include <versionhelpers.h>
 
-#include "dv_gui_opengl/dv_gui_opengl/dv_window.hpp"
+#include "libgui/gui_window.hpp"
+#include "libgui/utilities/util_debug.hpp"
 #include "libutil/util_log.hpp"
-#include "dv_gui_opengl/dv_gui_opengl/dv_global_config.hpp"
 
 #ifdef DV_USE_OPENGL2
     #include "backends/imgui_impl_opengl2.h"
@@ -185,7 +185,7 @@ void dv_window::set_taskbar_progress(uint64_t progress) {
 
 void dv_window::show() {
 #ifndef NDEBUG
-    DV_LOG_DEBG("", "OpenGL backend:  {}", DV_OPENGL_BACKEND);
+    DV_LOG_DEBG("", "OpenGL backend:  {}", dvsku::get_backend_type());
     DV_LOG_DEBG("", "OpenGL version:  {}", (char*)glGetString(GL_VERSION));
     DV_LOG_DEBG("", "OpenGL renderer: {}", (char*)glGetString(GL_RENDERER));
     DV_LOG_DEBG("", "ImGUI version:   {}", get_imgui_version());

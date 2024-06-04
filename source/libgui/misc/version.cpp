@@ -1,4 +1,4 @@
-#include "dv_gui_opengl/dv_gui_opengl/models/dv_version.hpp"
+#include "libgui/misc/version.hpp"
 
 using namespace dvsku;
 
