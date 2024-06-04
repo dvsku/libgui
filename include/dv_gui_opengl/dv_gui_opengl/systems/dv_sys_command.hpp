@@ -1,7 +1,7 @@
 #pragma once
 
-#include "dv_gui_opengl/dv_gui_opengl/models/dv_command.hpp"
-#include "dv_gui_opengl/dv_gui_opengl/utilities/dv_util_type_traits.hpp"
+#include "dv_gui_opengl/models/dv_command.hpp"
+#include "dv_gui_opengl/utilities/dv_util_type_traits.hpp"
 
 #include <map>
 

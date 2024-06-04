@@ -1,8 +1,8 @@
 #pragma once
 
-#include "dv_gui_opengl/dv_gui_opengl/models/dv_window_settings.hpp"
-#include "dv_gui_opengl/dv_gui_opengl/models/dv_window_title_bar.hpp"
-#include "dv_gui_opengl/dv_gui_opengl/models/dv_taskbar_status.hpp"
+#include "dv_gui_opengl/models/dv_window_settings.hpp"
+#include "dv_gui_opengl/models/dv_window_title_bar.hpp"
+#include "dv_gui_opengl/models/dv_taskbar_status.hpp"
 
 #include <string>
 

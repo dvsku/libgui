@@ -1,4 +1,4 @@
-#include <dv_gui_opengl/dv_gui_opengl.hpp>
+#include <dv_gui_opengl.hpp>
 #include <iostream>
 
 class app : public dvsku::dv_window {

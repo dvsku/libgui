@@ -1,4 +1,4 @@
-#include <dv_gui_opengl/dv_gui_opengl.hpp>
+#include <dv_gui_opengl.hpp>
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
 #include <iostream>
