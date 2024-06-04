@@ -8,14 +8,14 @@
 namespace dvsku {
     template<typename T>
     requires is_enum<T>
-    class dv_sys_command {
+    class gui_sys_command {
     public:
-        dv_sys_command()                      = default;
-        dv_sys_command(const dv_sys_command&) = delete;
-        dv_sys_command(dv_sys_command&&)      = delete;
+        gui_sys_command()                      = default;
+        gui_sys_command(const gui_sys_command&) = delete;
+        gui_sys_command(gui_sys_command&&)      = delete;
 
-        dv_sys_command& operator=(const dv_sys_command&) = delete;
-        dv_sys_command& operator=(dv_sys_command&&)      = delete;
+        gui_sys_command& operator=(const gui_sys_command&) = delete;
+        gui_sys_command& operator=(gui_sys_command&&)      = delete;
 
     public:
         // Set a command to execute
