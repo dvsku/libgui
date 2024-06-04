@@ -1,7 +1,7 @@
 #pragma once
 
 namespace dvsku {
-    class dv_util_sound {
+    class util_sound {
     public:
         static void warning();
         static void success();

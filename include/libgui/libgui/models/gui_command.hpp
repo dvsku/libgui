@@ -3,21 +3,21 @@
 #include <functional>
 
 namespace dvsku {
-    enum class dv_command_state : unsigned char {
+    enum class gui_command_state : unsigned char {
         finished = 0,
         repeat   = 1
     };
 
-    class dv_command {
+    class gui_command {
     public:
-        using command_fn_t = std::function<dv_command_state()>;
+        using command_fn_t = std::function<gui_command_state()>;
 
     public:
         bool to_execute = false;
 
     public:
-        dv_command() = default;
-        dv_command(command_fn_t fn);
+        gui_command() = default;
+        gui_command(command_fn_t fn);
 
     public:
         void execute();

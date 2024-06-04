@@ -4,7 +4,7 @@
 #include <string>
 
 namespace dvsku {
-    class dv_texture {
+    class texture {
     public:
         uint32_t id         = 0U;
         int      width      = 0U;
@@ -12,16 +12,16 @@ namespace dvsku {
         int      components = 0U;
 
     public:
-        dv_texture()                  = delete;
-        dv_texture(const dv_texture&) = delete;
-        dv_texture(dv_texture&&)      = delete;
+        texture()                  = delete;
+        texture(const texture&) = delete;
+        texture(texture&&)      = delete;
 
-        dv_texture(const std::string& filename);
-        dv_texture(const char* ptr, size_t size);
+        texture(const std::string& filename);
+        texture(const char* ptr, size_t size);
 
-        ~dv_texture();
+        ~texture();
 
-        dv_texture& operator=(const dv_texture&) = delete;
-        dv_texture& operator=(dv_texture&&)      = delete;
+        texture& operator=(const texture&) = delete;
+        texture& operator=(texture&&)      = delete;
     };
 }

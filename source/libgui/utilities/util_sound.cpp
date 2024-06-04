@@ -5,10 +5,10 @@
 
 using namespace dvsku;
 
-void dv_util_sound::warning() {
+void util_sound::warning() {
     PlaySound((LPCTSTR)SND_ALIAS_SYSTEMHAND, NULL, SND_ALIAS_ID | SND_SYSTEM | SND_ASYNC);
 }
 
-void dv_util_sound::success() {
+void util_sound::success() {
     PlaySound((LPCTSTR)SND_ALIAS_SYSTEMASTERISK, NULL, SND_ALIAS_ID | SND_SYSTEM | SND_ASYNC);
 }

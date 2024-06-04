@@ -4,7 +4,7 @@
 #include <vector>
 
 namespace dvsku {
-    class dv_util_dialog {
+    class util_dialog {
     public:
         static std::string open_file(const std::string& title, const std::string& path, 
             std::vector<std::string> filters = { "All Files", "*" });

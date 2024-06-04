@@ -4,13 +4,13 @@
 #include <string>
 
 namespace dvsku {
-    class dv_version {
+    class version {
     public:
-        dv_version() = default;
+        version() = default;
 
-        dv_version(uint64_t packed);
-        dv_version(uint16_t major, uint16_t minor, uint16_t rev);
-        dv_version(const std::string& major, const std::string& minor, const std::string& rev);
+        version(uint64_t packed);
+        version(uint16_t major, uint16_t minor, uint16_t rev);
+        version(const std::string& major, const std::string& minor, const std::string& rev);
 
     public:
         uint64_t get_packed() const;

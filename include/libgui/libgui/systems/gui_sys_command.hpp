@@ -39,7 +39,7 @@ namespace dvsku {
 
     protected:
         // Set command
-        void set_command(T command_type, const dv_command& cmd) {
+        void set_command(T command_type, const gui_command& cmd) {
             if (m_commands.contains(command_type))
                 return;
 
@@ -47,6 +47,6 @@ namespace dvsku {
         }
 
     private:
-        std::map<T, dv_command> m_commands;
+        std::map<T, gui_command> m_commands;
     };
 }

@@ -6,7 +6,7 @@ namespace dvsku {
         Used by the underlying windowing system to determine parts of a custom title bar.
     */
 
-    struct dv_window_title_bar {
+    struct gui_window_title_bar {
         /*
             Is the mouse over the custom title bar (not including iconify, maximize and close buttons)?
             Used to determine draggable area.

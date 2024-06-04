@@ -5,10 +5,10 @@
 
 using namespace dvsku;
 
-class app : public dvsku::dv_window {
+class app : public dvsku::gui_window {
 public:
-    app(const dvsku::dv_window_settings& settings)
-        : dvsku::dv_window(settings) {}
+    app(const dvsku::gui_window_settings& settings)
+        : dvsku::gui_window(settings) {}
 
 protected:
     bool prepare() override final {
@@ -134,7 +134,7 @@ int main() {
     dvsku::util_log::init(log_settings);
     dvsku::util_log::create_source("console", &std::cout);
 
-    dvsku::dv_window_settings settings;
+    dvsku::gui_window_settings settings;
     settings.width  = 1024;
     settings.height = 768;
     settings.title  = std::string("Borderless ") + dvsku::get_backend_type();

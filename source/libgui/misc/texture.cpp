@@ -3,10 +3,10 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
-#ifdef DV_USE_OPENGL2
+#ifdef LIBGUI_OPENGL2
     #include <windows.h>
     #include <gl/gl.h>
-#elif DV_USE_OPENGL3
+#elif  LIBGUI_OPENGL3
     #include <glad/glad.h>
 #endif
 
@@ -20,7 +20,7 @@ static void create_texture(unsigned char* data, int width, int height, uint32_t&
 ///////////////////////////////////////////////////////////////////////////////
 // PUBLIC
 
-dv_texture::dv_texture(const std::string& filename) {
+texture::texture(const std::string& filename) {
     unsigned char* image_data = stbi_load(filename.c_str(), &width, &height, &components, 4);
     if (!image_data) return;
 
@@ -28,7 +28,7 @@ dv_texture::dv_texture(const std::string& filename) {
     stbi_image_free(image_data);
 }
 
-dv_texture::dv_texture(const char* ptr, size_t size) {
+texture::texture(const char* ptr, size_t size) {
     unsigned char* image_data = stbi_load_from_memory((stbi_uc*)ptr, (int)size, &width, &height, &components, 4);
     if (!image_data) return;
 
@@ -36,7 +36,7 @@ dv_texture::dv_texture(const char* ptr, size_t size) {
     stbi_image_free(image_data);
 }
 
-dv_texture::~dv_texture() {
+texture::~texture() {
     if (!id) return;
 
     glBindTexture(GL_TEXTURE_2D, 0);

@@ -7,9 +7,9 @@
 #include <string>
 
 namespace dvsku {
-    class dv_window_context;
+    class gui_window_context;
 
-    class dv_window {
+    class gui_window {
     public:
         using handle_t = void*;
         using ptr_t    = intptr_t*;
@@ -22,18 +22,18 @@ namespace dvsku {
         };
 
     public:
-        dv_window(const dv_window_settings& settings);
-    	virtual ~dv_window();
+        gui_window(const gui_window_settings& settings);
+    	virtual ~gui_window();
 
     public:
         // Get custom title bar hit testing flags
-        dv_window_title_bar& get_title_bar();
+        gui_window_title_bar& get_title_bar();
 
         // Get initial window settings
-        const dv_window_settings& get_settings() const;
+        const gui_window_settings& get_settings() const;
 
         // Set taskbar progress bar status.
-        void set_taskbar_status(dv_taskbar_status status);
+        void set_taskbar_status(gui_taskbar_status status);
 
         // Set taskbar progress bar value.
         void set_taskbar_progress(uint64_t progress);
@@ -61,7 +61,7 @@ namespace dvsku {
         ptr_t m_native    = nullptr;
         bool  m_resizable = false;
 
-        dv_window_title_bar m_title_bar{};
+        gui_window_title_bar m_title_bar{};
         mouse_pos           m_mouse_pos{};
 
     protected:
@@ -106,10 +106,10 @@ namespace dvsku {
         ptr_t m_taskbar = nullptr;
 
     private:
-        dv_window_settings m_settings;
+        gui_window_settings m_settings;
 
     private:
-        friend dv_window_context;
+        friend gui_window_context;
 
     private:
     	void loop();

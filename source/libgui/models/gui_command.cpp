@@ -2,13 +2,13 @@
 
 using namespace dvsku;
 
-dv_command::dv_command(command_fn_t fn) {
+gui_command::gui_command(command_fn_t fn) {
     m_fn = fn;
 }
 
-void dv_command::execute() {
+void gui_command::execute() {
     if (!to_execute || !m_fn) return;
 
-    if (m_fn() == dv_command_state::finished)
+    if (m_fn() == gui_command_state::finished)
         to_execute = false;
 }

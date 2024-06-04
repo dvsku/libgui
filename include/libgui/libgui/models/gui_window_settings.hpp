@@ -4,7 +4,7 @@
 #include <cstdint>
 
 namespace dvsku {
-    struct dv_window_settings {
+    struct gui_window_settings {
         uint32_t width  = 1024U;
         uint32_t height = 768U;
 
