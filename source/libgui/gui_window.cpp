@@ -115,7 +115,7 @@ gui_window::gui_window(const gui_window_settings& settings) {
         (GetSystemMetrics(SM_CYSCREEN) / 2) - (settings.height / 2),
          settings.width, settings.height, GLFW_DONT_CARE);
 
-#ifdef DV_USE_OPENGL3
+#ifdef LIBGUI_OPENGL3
     // Init glad
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     	throw std::runtime_error("Failed to init glad.");
