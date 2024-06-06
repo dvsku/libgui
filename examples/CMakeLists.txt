@@ -1,6 +1,4 @@
-﻿INCLUDE_DIRECTORIES(${DV_GUI_INCLUDES})
-
-IF(LIBGUI_BUILD_OPENGL2)
+﻿IF(LIBGUI_BUILD_OPENGL2)
     ADD_EXECUTABLE(example_simple_opengl2
         "example_simple.cpp"
     )

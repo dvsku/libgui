@@ -11,15 +11,15 @@
 #include "libutil/util_log.hpp"
 
 #ifdef LIBGUI_OPENGL2
-    #include "backends/imgui_impl_opengl2.h"
+    #include <backends/imgui_impl_opengl2.h>
 
     #define LIBGUI_IMGUI_OPENGL_INIT      ImGui_ImplOpenGL2_Init
     #define LIBGUI_IMGUI_OPENGL_SHUTDOWN  ImGui_ImplOpenGL2_Shutdown
     #define LIBGUI_IMGUI_OPENGL_NEW_FRAME ImGui_ImplOpenGL2_NewFrame
     #define LIBGUI_IMGUI_OPENGL_RENDER    ImGui_ImplOpenGL2_RenderDrawData
 #elif  LIBGUI_OPENGL3
-    #include "glad/glad.h"
-    #include "backends/imgui_impl_opengl3.h"
+    #include <glad.h>
+    #include <backends/imgui_impl_opengl3.h>
 
     #define LIBGUI_IMGUI_OPENGL_INIT      ImGui_ImplOpenGL3_Init
     #define LIBGUI_IMGUI_OPENGL_SHUTDOWN  ImGui_ImplOpenGL3_Shutdown
@@ -32,11 +32,11 @@
 #define LIBGUI_NATIVE         GLFWwindow*
 #define LIBGUI_TO_NATIVE(ptr) (LIBGUI_NATIVE)ptr
 
-#include "glfw/glfw3.h"
-#include "glfw/glfw3native.h"
-#include "imgui.h"
-#include "imgui_internal.h"
-#include "backends/imgui_impl_glfw.h"
+#include <glfw/glfw3.h>
+#include <glfw/glfw3native.h>
+#include <imgui.h>
+#include <imgui_internal.h>
+#include <backends/imgui_impl_glfw.h>
 
 using namespace dvsku;
 

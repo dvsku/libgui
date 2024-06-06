@@ -7,7 +7,7 @@
     #include <windows.h>
     #include <gl/gl.h>
 #elif  LIBGUI_OPENGL3
-    #include <glad/glad.h>
+    #include <glad.h>
 #endif
 
 using namespace dvsku;
