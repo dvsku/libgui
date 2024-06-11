@@ -68,6 +68,21 @@ namespace dvsku {
                       ((rgba >> 24) & 0xFF) / 255.0f);
     }
 
+    constexpr auto lerp(uint32_t lhs, uint32_t rhs, float t) {
+        auto a = RGBA_to_fRGBA(lhs);
+        auto b = RGBA_to_fRGBA(rhs);
+
+        return ImVec4(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t, a.w + (b.w - a.w) * t);
+    }
+
+    constexpr auto darken(uint32_t rgba) {
+        return lerp(rgba, fRGBA_to_RGBA(0.0f, 0.0f, 0.0f, 1.00f), 0.2f);
+    }
+
+    constexpr auto lighten(uint32_t rgba) {
+        return lerp(rgba, fRGBA_to_RGBA(1.0f, 1.0f, 1.0f, 1.00f), 0.1f);
+    }
+
     class theme {
     public:
         theme();
