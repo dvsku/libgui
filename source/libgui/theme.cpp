@@ -74,7 +74,7 @@ void theme::apply() {
     colors[ImGuiCol_FrameBgHovered]        = lighten(m_colors[theme_col::frame_background]);
     colors[ImGuiCol_FrameBgActive]         = darken(m_colors[theme_col::frame_background]);
     colors[ImGuiCol_TitleBg]               = RGBA_to_fRGBA(m_colors[theme_col::title_background]);
-    colors[ImGuiCol_TitleBgActive]         = darken(m_colors[theme_col::title_background]);
+    colors[ImGuiCol_TitleBgActive]         = RGBA_to_fRGBA(m_colors[theme_col::title_background]);
     colors[ImGuiCol_TitleBgCollapsed]      = RGBA_to_fRGBA(m_colors[theme_col::title_background_collapsed]);
     colors[ImGuiCol_MenuBarBg]             = RGBA_to_fRGBA(m_colors[theme_col::menu_bar_background]);
     colors[ImGuiCol_ScrollbarBg]           = RGBA_to_fRGBA(m_colors[theme_col::scroll]);
@@ -96,10 +96,11 @@ void theme::apply() {
     colors[ImGuiCol_ResizeGrip]            = RGBA_to_fRGBA(m_colors[theme_col::resize]);
     colors[ImGuiCol_ResizeGripHovered]     = lighten(m_colors[theme_col::resize]);
     colors[ImGuiCol_ResizeGripActive]      = darken(m_colors[theme_col::resize]);
-    colors[ImGuiCol_Tab]                   = RGBA_to_fRGBA(m_colors[theme_col::tab]);
+    colors[ImGuiCol_Tab]                   = RGBA_to_fRGBA(m_colors[theme_col::tab_unfocused]);
     colors[ImGuiCol_TabHovered]            = lighten(m_colors[theme_col::tab]);
-    colors[ImGuiCol_TabActive]             = darken(m_colors[theme_col::tab]);
+    colors[ImGuiCol_TabActive]             = RGBA_to_fRGBA(m_colors[theme_col::tab]);
     colors[ImGuiCol_TabUnfocused]          = RGBA_to_fRGBA(m_colors[theme_col::tab_unfocused]);
+    colors[ImGuiCol_TabUnfocusedActive]    = RGBA_to_fRGBA(m_colors[theme_col::tab]);
     colors[ImGuiCol_TabUnfocusedActive]    = darken(m_colors[theme_col::tab_unfocused]);
     colors[ImGuiCol_DockingPreview]        = colors[ImGuiCol_HeaderActive] * ImVec4(1.0f, 1.0f, 1.0f, 0.7f);
     colors[ImGuiCol_DockingEmptyBg]        = RGBA_to_fRGBA(m_colors[theme_col::docking_empty_background]);
