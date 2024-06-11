@@ -2,7 +2,7 @@
 #include "libgui/theme.hpp"
 
 bool dvsku::imgui::begin_composite(const char* id, const ImVec2& size, bool border, ImGuiWindowFlags flags) {
-    ImVec2 size_arg = {};
+    ImVec2 size_arg = size;
     ImVec2 pos      = ImGui::GetCursorScreenPos();
     ImVec2 pos_max  = {};
 
