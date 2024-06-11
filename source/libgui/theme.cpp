@@ -101,7 +101,6 @@ void theme::apply() {
     colors[ImGuiCol_TabActive]             = RGBA_to_fRGBA(m_colors[theme_col::tab]);
     colors[ImGuiCol_TabUnfocused]          = RGBA_to_fRGBA(m_colors[theme_col::tab_unfocused]);
     colors[ImGuiCol_TabUnfocusedActive]    = RGBA_to_fRGBA(m_colors[theme_col::tab]);
-    colors[ImGuiCol_TabUnfocusedActive]    = darken(m_colors[theme_col::tab_unfocused]);
     colors[ImGuiCol_DockingPreview]        = colors[ImGuiCol_HeaderActive] * ImVec4(1.0f, 1.0f, 1.0f, 0.7f);
     colors[ImGuiCol_DockingEmptyBg]        = RGBA_to_fRGBA(m_colors[theme_col::docking_empty_background]);
     colors[ImGuiCol_PlotLines]             = RGBA_to_fRGBA(m_colors[theme_col::plot_line]);
