@@ -7,6 +7,7 @@
 #include <versionhelpers.h>
 
 #include "libgui/gui_window.hpp"
+#include "libgui/theme.hpp"
 #include "libgui/utilities/util_debug.hpp"
 #include "libutil/util_log.hpp"
 
@@ -194,6 +195,9 @@ void gui_window::show() {
 
     // Cancel showing if prepare failed
     if (!prepare()) return;
+
+    // Set the theme
+    theme::apply();
 
     loop();
 }

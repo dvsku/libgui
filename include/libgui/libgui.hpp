@@ -7,6 +7,7 @@
 #include "libgui/systems/gui_sys_command.hpp"
 #include "libgui/misc/texture.hpp"
 #include "libgui/misc/version.hpp"
+#include "libgui/theme.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////
 // UTILITIES
