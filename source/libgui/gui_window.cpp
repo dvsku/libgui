@@ -144,6 +144,8 @@ gui_window::gui_window(const gui_window_settings& settings) {
 
     ImGui_ImplGlfw_InitForOpenGL(LIBGUI_TO_NATIVE(m_native), true);
     LIBGUI_IMGUI_OPENGL_INIT();
+
+    theme::init();
 }
 
 gui_window::~gui_window() {

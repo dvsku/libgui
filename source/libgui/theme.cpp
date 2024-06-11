@@ -2,7 +2,7 @@
 
 using namespace dvsku;
 
-theme::theme() {
+void theme::init() {
     m_colors[theme_col::text]                       = fRGBA_to_RGBA(1.00f, 1.00f, 1.00f, 1.00f);
     m_colors[theme_col::text_disabled]              = fRGBA_to_RGBA(0.50f, 0.50f, 0.50f, 1.00f);
     m_colors[theme_col::text_selected_background]   = fRGBA_to_RGBA(0.26f, 0.59f, 0.98f, 0.35f);

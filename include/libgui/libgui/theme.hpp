@@ -85,9 +85,8 @@ namespace dvsku {
 
     class theme {
     public:
-        theme();
+        static void init();
 
-    public:
         static uint32_t set(theme_col col, uint32_t rgba);
         static void apply();
 
