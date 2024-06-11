@@ -5,7 +5,7 @@ using namespace dvsku;
 void theme::init() {
     m_colors[theme_col::text]                       = fRGBA_to_RGBA(1.00f, 1.00f, 1.00f, 1.00f);
     m_colors[theme_col::text_disabled]              = fRGBA_to_RGBA(0.50f, 0.50f, 0.50f, 1.00f);
-    m_colors[theme_col::text_selected_background]   = fRGBA_to_RGBA(0.26f, 0.59f, 0.98f, 0.35f);
+    m_colors[theme_col::text_selected_background]   = fRGBA_to_RGBA(0.29020f, 0.24314f, 0.61176f, 0.35f);
     m_colors[theme_col::window_background]          = fRGBA_to_RGBA(0.14118f, 0.14118f, 0.14118f, 1.00f);
     m_colors[theme_col::child_background]           = fRGBA_to_RGBA(0.14118f, 0.14118f, 0.14118f, 1.00f);
     m_colors[theme_col::popup_background]           = fRGBA_to_RGBA(0.14118f, 0.14118f, 0.14118f, 1.00f);
@@ -21,9 +21,10 @@ void theme::init() {
     m_colors[theme_col::slide_grab]                 = fRGBA_to_RGBA(0.29020f, 0.24314f, 0.61176f, 1.00f);
     m_colors[theme_col::button]                     = fRGBA_to_RGBA(0.29020f, 0.24314f, 0.61176f, 1.00f);
     m_colors[theme_col::header]                     = fRGBA_to_RGBA(0.0f, 0.0f, 0.0f, 0.0f);
+    m_colors[theme_col::header_hovered]             = fRGBA_to_RGBA(0.29020f, 0.24314f, 0.61176f, 1.00f);
     m_colors[theme_col::separator]                  = fRGBA_to_RGBA(0.0f, 0.0f, 0.0f, 0.7f);
     m_colors[theme_col::resize]                     = fRGBA_to_RGBA(0.29020f, 0.24314f, 0.61176f, 1.00f);
-    m_colors[theme_col::tab]                        = fRGBA_to_RGBA(0.18039f, 0.18039f, 0.18039f, 1.00f);
+    m_colors[theme_col::tab]                        = fRGBA_to_RGBA(0.29020f, 0.24314f, 0.61176f, 1.00f);
     m_colors[theme_col::tab_unfocused]              = fRGBA_to_RGBA(0.18039f, 0.18039f, 0.18039f, 1.00f);
     m_colors[theme_col::docking_empty_background]   = fRGBA_to_RGBA(0.20f, 0.20f, 0.20f, 1.00f);
     m_colors[theme_col::plot_line]                  = fRGBA_to_RGBA(0.61f, 0.61f, 0.61f, 1.00f);
@@ -87,8 +88,8 @@ void theme::apply() {
     colors[ImGuiCol_ButtonHovered]         = lighten(m_colors[theme_col::button]);
     colors[ImGuiCol_ButtonActive]          = darken(m_colors[theme_col::button]);
     colors[ImGuiCol_Header]                = RGBA_to_fRGBA(m_colors[theme_col::header]);
-    colors[ImGuiCol_HeaderHovered]         = lighten(m_colors[theme_col::header]);
-    colors[ImGuiCol_HeaderActive]          = darken(m_colors[theme_col::header]);
+    colors[ImGuiCol_HeaderHovered]         = RGBA_to_fRGBA(m_colors[theme_col::header_hovered]);
+    colors[ImGuiCol_HeaderActive]          = darken(m_colors[theme_col::header_hovered]);
     colors[ImGuiCol_Separator]             = RGBA_to_fRGBA(m_colors[theme_col::separator]);
     colors[ImGuiCol_SeparatorHovered]      = lighten(m_colors[theme_col::separator]);
     colors[ImGuiCol_SeparatorActive]       = darken(m_colors[theme_col::separator]);

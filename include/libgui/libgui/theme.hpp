@@ -28,6 +28,7 @@ namespace dvsku {
         slide_grab,
         button,
         header,
+        header_hovered,
         separator,
         resize,
         tab,
