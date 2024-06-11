@@ -8,6 +8,7 @@
 #include "libgui/misc/texture.hpp"
 #include "libgui/misc/version.hpp"
 #include "libgui/theme.hpp"
+#include "libgui/imgui_extensions.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////
 // UTILITIES

@@ -38,6 +38,8 @@ void theme::init() {
     m_colors[theme_col::nav_highlight_window_dim]   = fRGBA_to_RGBA(0.80f, 0.80f, 0.80f, 0.20f);
     m_colors[theme_col::modal_dim]                  = fRGBA_to_RGBA(0.80f, 0.80f, 0.80f, 0.35f);
     m_colors[theme_col::drag_drop_target]           = fRGBA_to_RGBA(1.00f, 1.00f, 0.00f, 0.90f);
+
+    m_colors[theme_col::composite]                  = fRGBA_to_RGBA(0.14118f, 0.14118f, 0.14118f, 1.00f);
 }
 
 uint32_t theme::set(theme_col col, uint32_t rgba) {

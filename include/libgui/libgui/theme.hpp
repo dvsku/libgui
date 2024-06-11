@@ -44,10 +44,12 @@ namespace dvsku {
         nav_highlight_window,
         nav_highlight_window_dim,
         modal_dim,
-        drag_drop_target
+        drag_drop_target,
 
         ////////////////////////////////////////////////////////////////////////
         // CUSTOM
+
+        composite,
     };
 
     constexpr auto RGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
