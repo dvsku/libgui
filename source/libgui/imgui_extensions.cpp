@@ -17,7 +17,7 @@ bool dvsku::imgui::begin_composite(const char* id, const ImVec2& size, bool bord
     if (!ImGui::IsMouseHoveringRect(pos, pos_max))
         ImGui::PushStyleColor(ImGuiCol_ChildBg, theme::get(theme_col::composite));
     else
-        ImGui::PushStyleColor(ImGuiCol_ChildBg, lighten(theme::get(theme_col::composite)));
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, theme::get(theme_col::composite_hovered));
 
     bool retval = ImGui::BeginChild(id, size, border, flags);
 

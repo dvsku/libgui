@@ -41,6 +41,7 @@ void theme::init() {
     m_colors[theme_col::drag_drop_target]           = fRGBA_to_RGBA(1.00f, 1.00f, 0.00f, 0.90f);
 
     m_colors[theme_col::composite]                  = fRGBA_to_RGBA(0.14118f, 0.14118f, 0.14118f, 1.00f);
+    m_colors[theme_col::composite_hovered]          = fRGBA_to_RGBA(0.23922f, 0.23922f, 0.23922f, 1.00f);
 }
 
 uint32_t theme::set(theme_col col, uint32_t rgba) {
