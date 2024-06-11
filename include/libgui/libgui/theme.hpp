@@ -55,17 +55,17 @@ namespace dvsku {
     }
 
     constexpr auto fRGBA_to_RGBA(float r, float g, float b, float a) {
-        return RGBA(static_cast<uint8_t>(r * 0xFF), 
-                    static_cast<uint8_t>(g * 0xFF), 
-                    static_cast<uint8_t>(b * 0xFF), 
-                    static_cast<uint8_t>(a * 0xFF));
+        return RGBA(static_cast<uint8_t>(r * 255.0f), 
+                    static_cast<uint8_t>(g * 255.0f), 
+                    static_cast<uint8_t>(b * 255.0f), 
+                    static_cast<uint8_t>(a * 255.0f));
     }
 
     constexpr auto RGBA_to_fRGBA(uint32_t rgba) {
-        return ImVec4(((rgba >> 24) & 0xFF) / 255.0f,
-                      ((rgba >> 16) & 0xFF) / 255.0f,
-                      ((rgba >> 8)  & 0xFF) / 255.0f,
-                      (rgba & 0xFF)         / 255.0f);
+        return ImVec4((rgba & 0xFF)         / 255.0f, 
+                      ((rgba >> 8)  & 0xFF) / 255.0f, 
+                      ((rgba >> 16) & 0xFF) / 255.0f, 
+                      ((rgba >> 24) & 0xFF) / 255.0f);
     }
 
     class theme {
