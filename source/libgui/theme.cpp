@@ -122,10 +122,13 @@ void theme::apply() {
 }
 
 void theme::save() {
-    m_saved_colors = m_colors;
+    for (auto& [col, value] : m_colors)
+        m_saved_colors[col] = value;
 }
 
 void theme::restore() {
-    m_colors = m_saved_colors;
+    for (auto& [col, value] : m_saved_colors)
+        m_colors[col] = value;
+
     apply();
 }

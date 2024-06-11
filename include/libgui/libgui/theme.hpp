@@ -3,7 +3,7 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 
 #include <imgui/imgui.h>
-#include <unordered_map>
+#include <map>
 
 namespace dvsku {
     enum class theme_col {
@@ -100,7 +100,7 @@ namespace dvsku {
         static void restore();
 
     private:
-        inline static std::unordered_map<theme_col, uint32_t> m_colors;
-        inline static std::unordered_map<theme_col, uint32_t> m_saved_colors;
+        inline static std::map<theme_col, uint32_t> m_colors;
+        inline static std::map<theme_col, uint32_t> m_saved_colors;
     };
 }
