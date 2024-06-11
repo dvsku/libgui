@@ -88,6 +88,8 @@ namespace dvsku {
         static void init();
 
         static uint32_t set(theme_col col, uint32_t rgba);
+        static uint32_t get(theme_col col);
+
         static void apply();
 
         static void save();

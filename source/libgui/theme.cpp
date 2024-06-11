@@ -46,6 +46,10 @@ uint32_t theme::set(theme_col col, uint32_t rgba) {
     return prev;
 }
 
+uint32_t theme::get(theme_col col) {
+    return m_colors[col];
+}
+
 void theme::apply() {
     ImGuiStyle* style  = &ImGui::GetStyle();
     ImVec4*     colors = style->Colors;
