@@ -30,6 +30,43 @@ void dvsku::imgui::end_composite() {
     ImGui::EndChild();
 }
 
+bool dvsku::imgui::begin_item_context_menu(const char* id, ImGuiPopupFlags popup_flags) {
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 8.0f, 6.0f });
+    ImGui::PushStyleColor(ImGuiCol_PopupBg, theme::get(theme_col::context_menu));
+
+    ImGui::SetNextWindowSize({ 225.0f, 0.0f });
+
+    ImGuiContext& g      = *GImGui;
+    ImGuiWindow*  window = g.CurrentWindow;
+
+    if (window->SkipItems)
+        return false;
+
+    ImGuiID item_id = id ? window->GetID(id) : g.LastItemData.ID;
+    IM_ASSERT(id != 0);
+
+    int mouse_button = (popup_flags & ImGuiPopupFlags_MouseButtonMask_);
+    if (ImGui::IsMouseReleased(mouse_button) && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup))
+        ImGui::OpenPopupEx(item_id, popup_flags);
+
+    ImGuiWindowFlags flags = 0;
+    flags |= ImGuiWindowFlags_AlwaysAutoResize;
+    flags |= ImGuiWindowFlags_NoMove;
+    flags |= ImGuiWindowFlags_NoTitleBar;
+    flags |= ImGuiWindowFlags_NoSavedSettings;
+
+    bool result = ImGui::BeginPopupEx(item_id, flags);
+
+    ImGui::PopStyleVar(1);
+    ImGui::PopStyleColor(1);
+
+    return result;
+}
+
+void dvsku::imgui::end_item_context_menu() {
+    ImGui::EndPopup();
+}
+
 void dvsku::imgui::text_ellipsis(const char* label, float max) {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     ImGuiStyle&  style  = ImGui::GetStyle();
