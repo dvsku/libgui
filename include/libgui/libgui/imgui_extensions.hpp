@@ -10,5 +10,8 @@ namespace dvsku::imgui {
     bool begin_item_context_menu(const char* id = nullptr, ImGuiPopupFlags popup_flags = 1);
     void end_item_context_menu();
 
+    bool begin_menu(const char* label, bool enabled = true);
+    void end_menu();
+
     void text_ellipsis(const char* label, float max = 0.0f);
 }

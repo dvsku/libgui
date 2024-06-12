@@ -67,6 +67,23 @@ void dvsku::imgui::end_item_context_menu() {
     ImGui::EndPopup();
 }
 
+bool dvsku::imgui::begin_menu(const char* label, bool enabled) {
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 8.0f, 6.0f });
+    ImGui::PushStyleColor(ImGuiCol_PopupBg, theme::get(theme_col::context_menu));
+
+    ImGui::SetNextWindowSize({ 225.0f, 0.0f });
+    bool result = ImGui::BeginMenu(label, enabled);
+
+    ImGui::PopStyleVar(1);
+    ImGui::PopStyleColor(1);
+
+    return result;
+}
+
+void dvsku::imgui::end_menu() {
+    ImGui::EndMenu();
+}
+
 void dvsku::imgui::text_ellipsis(const char* label, float max) {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     ImGuiStyle&  style  = ImGui::GetStyle();
