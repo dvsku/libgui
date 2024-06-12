@@ -22,7 +22,7 @@ void theme::init() {
     m_colors[theme_col::button]                     = fRGBA_to_RGBA(0.29020f, 0.24314f, 0.61176f, 1.00f);
     m_colors[theme_col::header]                     = fRGBA_to_RGBA(0.0f, 0.0f, 0.0f, 0.0f);
     m_colors[theme_col::header_hovered]             = fRGBA_to_RGBA(0.29020f, 0.24314f, 0.61176f, 1.00f);
-    m_colors[theme_col::separator]                  = fRGBA_to_RGBA(0.0f, 0.0f, 0.0f, 0.7f);
+    m_colors[theme_col::separator]                  = fRGBA_to_RGBA(1.0f, 1.0f, 1.0f, 0.15f);
     m_colors[theme_col::resize]                     = fRGBA_to_RGBA(0.29020f, 0.24314f, 0.61176f, 1.00f);
     m_colors[theme_col::tab]                        = fRGBA_to_RGBA(0.29020f, 0.24314f, 0.61176f, 1.00f);
     m_colors[theme_col::tab_unfocused]              = fRGBA_to_RGBA(0.18039f, 0.18039f, 0.18039f, 1.00f);
