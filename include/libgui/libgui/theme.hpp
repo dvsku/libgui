@@ -3,57 +3,23 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 
 #include <imgui/imgui.h>
-#include <map>
+#include <typeindex>
+#include <typeinfo>
+#include <unordered_map>
+#include <vector>
 
 namespace dvsku {
+    ////////////////////////////////////////////////////////////////////////////
+    // EXTENSION COLORS
+
     enum class theme_col {
-        ////////////////////////////////////////////////////////////////////////
-        // IMGUI NATIVE
-
-        text,
-        text_disabled,
-        text_selected_background,
-        window_background,
-        child_background,
-        popup_background,
-        border,
-        border_shadow,
-        frame_background,
-        title_background,
-        title_background_collapsed,
-        menu_bar_background,
-        scroll,
-        scroll_grab,
-        check_mark,
-        slide_grab,
-        button,
-        header,
-        header_hovered,
-        separator,
-        resize,
-        tab,
-        tab_unfocused,
-        docking_empty_background,
-        plot_line,
-        plot_histogram,
-        table_header,
-        table_border_strong,
-        table_border_light,
-        table_row,
-        table_row_alt,
-        nav_highlight,
-        nav_highlight_window,
-        nav_highlight_window_dim,
-        modal_dim,
-        drag_drop_target,
-
-        ////////////////////////////////////////////////////////////////////////
-        // CUSTOM
-
         composite,
         composite_hovered,
         context_menu,
     };
+
+    ////////////////////////////////////////////////////////////////////////////
+    // CONVERSIONS
 
     constexpr auto RGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
         return (((uint32_t)(a) << 24) | ((uint32_t)(b) << 16) | ((uint32_t)(g) << 8) | ((uint32_t)(r) << 0));
@@ -66,6 +32,10 @@ namespace dvsku {
                     static_cast<uint8_t>(a * 255.0f));
     }
 
+    constexpr auto fRGBA_to_RGBA(ImVec4 value) {
+        return fRGBA_to_RGBA(value.x, value.y, value.z, value.w);
+    }
+
     constexpr auto RGBA_to_fRGBA(uint32_t rgba) {
         return ImVec4((rgba & 0xFF)         / 255.0f, 
                       ((rgba >> 8)  & 0xFF) / 255.0f, 
@@ -73,35 +43,87 @@ namespace dvsku {
                       ((rgba >> 24) & 0xFF) / 255.0f);
     }
 
+    ////////////////////////////////////////////////////////////////////////////
+    // MODIFICATIONS
+
     constexpr auto lerp(uint32_t lhs, uint32_t rhs, float t) {
         auto a = RGBA_to_fRGBA(lhs);
         auto b = RGBA_to_fRGBA(rhs);
 
-        return ImVec4(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t, a.w + (b.w - a.w) * t);
+        return fRGBA_to_RGBA(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t, a.w + (b.w - a.w) * t);
     }
 
-    constexpr auto darken(uint32_t rgba) {
-        return lerp(rgba, fRGBA_to_RGBA(0.0f, 0.0f, 0.0f, 1.00f), 0.2f);
+    constexpr auto darken(uint32_t rgba, float factor = 0.2f) {
+        return lerp(rgba, fRGBA_to_RGBA(0.0f, 0.0f, 0.0f, 1.00f), factor);
     }
 
-    constexpr auto lighten(uint32_t rgba) {
-        return lerp(rgba, fRGBA_to_RGBA(1.0f, 1.0f, 1.0f, 1.00f), 0.1f);
+    constexpr auto lighten(uint32_t rgba, float factor = 0.1f) {
+        return lerp(rgba, fRGBA_to_RGBA(1.0f, 1.0f, 1.0f, 1.00f), factor);
     }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // THEME
 
     class theme {
     public:
+        struct backup_col {
+            size_t   type  = 0U;
+            int      col   = 0;
+            uint32_t value = {};
+        };
+
+    public:
         static void init();
 
-        static uint32_t set(theme_col col, uint32_t rgba);
-        static uint32_t get(theme_col col);
+        template<typename Col>
+        static void push(Col col, uint32_t value) {
+            m_backup_col.push_back({});
+            m_backup_col.back().type = std::type_index(typeid(Col)).hash_code();
+            m_backup_col.back().col  = (int)col;
 
-        static void apply();
+            if (typeid(Col) == typeid(ImGuiCol_)) {
+                ImGui::PushStyleColor((int)col, value);
+            }
+            else {
+                m_backup_col.back().value = m_col[m_backup_col.back().type][m_backup_col.back().col];
+                m_col[m_backup_col.back().type][m_backup_col.back().col] = value;
+            }
+        }
 
-        static void save();
-        static void restore();
+        static void pop(size_t count = 1);
+
+        template<typename Col>
+        static void set(Col col, uint32_t value) {
+            if (typeid(Col) == typeid(ImGuiCol_)) {
+                ImGui::GetStyle().Colors[(int)col] = RGBA_to_fRGBA(value);
+            }
+            else {
+                m_col[std::type_index(typeid(Col)).hash_code()][(int)col] = value;
+            }
+        }
+
+        template<typename Col>
+        static void set(Col col, ImVec4 value) {
+            if (typeid(Col) == typeid(ImGuiCol_)) {
+                ImGui::GetStyle().Colors[(int)col] = value;
+            }
+            else {
+                m_col[std::type_index(typeid(Col)).hash_code()][(int)col] = fRGBA_to_RGBA(value);
+            }
+        }
+
+        template<typename Col>
+        static uint32_t get(Col col) {
+            if (typeid(Col) == typeid(ImGuiCol_)) {
+                return fRGBA_to_RGBA(ImGui::GetStyle().Colors[(int)col]);
+            }
+            else {
+                return m_col[std::type_index(typeid(Col)).hash_code()][(int)col];
+            }
+        }
 
     private:
-        inline static std::map<theme_col, uint32_t> m_colors;
-        inline static std::map<theme_col, uint32_t> m_saved_colors;
+        inline static std::unordered_map<size_t, std::unordered_map<int, uint32_t>> m_col;
+        inline static std::vector<backup_col>                                       m_backup_col;
     };
 }

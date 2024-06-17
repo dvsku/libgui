@@ -3,133 +3,93 @@
 using namespace dvsku;
 
 void theme::init() {
-    m_colors[theme_col::text]                       = fRGBA_to_RGBA(1.00f, 1.00f, 1.00f, 1.00f);
-    m_colors[theme_col::text_disabled]              = fRGBA_to_RGBA(0.50f, 0.50f, 0.50f, 1.00f);
-    m_colors[theme_col::text_selected_background]   = fRGBA_to_RGBA(0.29020f, 0.24314f, 0.61176f, 0.35f);
-    m_colors[theme_col::window_background]          = fRGBA_to_RGBA(0.14118f, 0.14118f, 0.14118f, 1.00f);
-    m_colors[theme_col::child_background]           = fRGBA_to_RGBA(0.14118f, 0.14118f, 0.14118f, 1.00f);
-    m_colors[theme_col::popup_background]           = fRGBA_to_RGBA(0.14118f, 0.14118f, 0.14118f, 1.00f);
-    m_colors[theme_col::border]                     = fRGBA_to_RGBA(0.43f, 0.43f, 0.50f, 0.50f);
-    m_colors[theme_col::border_shadow]              = fRGBA_to_RGBA(0.00f, 0.00f, 0.00f, 0.00f);
-    m_colors[theme_col::frame_background]           = fRGBA_to_RGBA(0.12157f, 0.12157f, 0.12157f, 1.00f);
-    m_colors[theme_col::title_background]           = fRGBA_to_RGBA(0.12157f, 0.12157f, 0.12157f, 1.00f);
-    m_colors[theme_col::title_background_collapsed] = fRGBA_to_RGBA(0.00f, 0.00f, 0.00f, 0.51f);
-    m_colors[theme_col::menu_bar_background]        = fRGBA_to_RGBA(0.14118f, 0.14118f, 0.14118f, 1.00f);
-    m_colors[theme_col::scroll]                     = fRGBA_to_RGBA(0.14118f, 0.14118f, 0.14118f, 1.00f);
-    m_colors[theme_col::scroll_grab]                = fRGBA_to_RGBA(0.29020f, 0.24314f, 0.61176f, 1.00f);
-    m_colors[theme_col::check_mark]                 = fRGBA_to_RGBA(0.44314f, 0.37647f, 0.90980f, 1.00f);
-    m_colors[theme_col::slide_grab]                 = fRGBA_to_RGBA(0.29020f, 0.24314f, 0.61176f, 1.00f);
-    m_colors[theme_col::button]                     = fRGBA_to_RGBA(0.29020f, 0.24314f, 0.61176f, 1.00f);
-    m_colors[theme_col::header]                     = fRGBA_to_RGBA(0.0f, 0.0f, 0.0f, 0.0f);
-    m_colors[theme_col::header_hovered]             = fRGBA_to_RGBA(0.29020f, 0.24314f, 0.61176f, 1.00f);
-    m_colors[theme_col::separator]                  = fRGBA_to_RGBA(1.0f, 1.0f, 1.0f, 0.15f);
-    m_colors[theme_col::resize]                     = fRGBA_to_RGBA(0.29020f, 0.24314f, 0.61176f, 1.00f);
-    m_colors[theme_col::tab]                        = fRGBA_to_RGBA(0.29020f, 0.24314f, 0.61176f, 1.00f);
-    m_colors[theme_col::tab_unfocused]              = fRGBA_to_RGBA(0.18039f, 0.18039f, 0.18039f, 1.00f);
-    m_colors[theme_col::docking_empty_background]   = fRGBA_to_RGBA(0.20f, 0.20f, 0.20f, 1.00f);
-    m_colors[theme_col::plot_line]                  = fRGBA_to_RGBA(0.61f, 0.61f, 0.61f, 1.00f);
-    m_colors[theme_col::plot_histogram]             = fRGBA_to_RGBA(0.29020f, 0.24314f, 0.61176f, 1.00f);
-    m_colors[theme_col::table_header]               = fRGBA_to_RGBA(0.19f, 0.19f, 0.20f, 1.00f);
-    m_colors[theme_col::table_border_strong]        = fRGBA_to_RGBA(0.31f, 0.31f, 0.35f, 1.00f);
-    m_colors[theme_col::table_border_light]         = fRGBA_to_RGBA(0.23f, 0.23f, 0.25f, 1.00f);
-    m_colors[theme_col::table_row]                  = fRGBA_to_RGBA(0.00f, 0.00f, 0.00f, 0.00f);
-    m_colors[theme_col::table_row_alt]              = fRGBA_to_RGBA(1.00f, 1.00f, 1.00f, 0.06f);
-    m_colors[theme_col::nav_highlight]              = fRGBA_to_RGBA(0.26f, 0.59f, 0.98f, 1.00f);
-    m_colors[theme_col::nav_highlight_window]       = fRGBA_to_RGBA(1.00f, 1.00f, 1.00f, 0.70f);
-    m_colors[theme_col::nav_highlight_window_dim]   = fRGBA_to_RGBA(0.80f, 0.80f, 0.80f, 0.20f);
-    m_colors[theme_col::modal_dim]                  = fRGBA_to_RGBA(0.80f, 0.80f, 0.80f, 0.35f);
-    m_colors[theme_col::drag_drop_target]           = fRGBA_to_RGBA(1.00f, 1.00f, 0.00f, 0.90f);
+    ImGuiStyle& style = ImGui::GetStyle();
 
-    m_colors[theme_col::composite]                  = fRGBA_to_RGBA(0.14118f, 0.14118f, 0.14118f, 1.00f);
-    m_colors[theme_col::composite_hovered]          = fRGBA_to_RGBA(0.23922f, 0.23922f, 0.23922f, 1.00f);
-    m_colors[theme_col::context_menu]               = fRGBA_to_RGBA(0.21961f, 0.21961f, 0.21961f, 1.00f);
+    style.TabRounding              = 0.0f;
+    style.TabBarBorderSize         = 2.0f;
+    style.DockingSeparatorSize     = 1.0f;
+    style.WindowBorderSize         = 0.0f;
+    style.WindowMenuButtonPosition = ImGuiDir_Right;
+
+    set(ImGuiCol_Text,                  { 1.00f, 1.00f, 1.00f, 1.00f });
+    set(ImGuiCol_TextDisabled,          { 0.50f, 0.50f, 0.50f, 1.00f });
+    set(ImGuiCol_WindowBg,              { 0.14118f, 0.14118f, 0.14118f, 1.00f });
+    set(ImGuiCol_ChildBg,               { 0.14118f, 0.14118f, 0.14118f, 1.00f });
+    set(ImGuiCol_PopupBg,               { 0.14118f, 0.14118f, 0.14118f, 1.00f });
+    set(ImGuiCol_Border,                { 0.43f, 0.43f, 0.50f, 0.50f });
+    set(ImGuiCol_BorderShadow,          { 0.00f, 0.00f, 0.00f, 0.00f });
+    set(ImGuiCol_FrameBg,               { 0.12157f, 0.12157f, 0.12157f, 1.00f });
+    set(ImGuiCol_FrameBgHovered,        lighten(get(ImGuiCol_FrameBg)));
+    set(ImGuiCol_FrameBgActive,         darken(get(ImGuiCol_FrameBg)));
+    set(ImGuiCol_TitleBg,               { 0.12157f, 0.12157f, 0.12157f, 1.00f });
+    set(ImGuiCol_TitleBgActive,         { 0.12157f, 0.12157f, 0.12157f, 1.00f });
+    set(ImGuiCol_TitleBgCollapsed,      { 0.00f, 0.00f, 0.00f, 0.51f });
+    set(ImGuiCol_MenuBarBg,             { 0.14118f, 0.14118f, 0.14118f, 1.00f });
+    set(ImGuiCol_ScrollbarBg,           { 0.14118f, 0.14118f, 0.14118f, 1.00f });
+    set(ImGuiCol_ScrollbarGrab,         { 0.29020f, 0.24314f, 0.61176f, 1.00f });
+    set(ImGuiCol_ScrollbarGrabHovered,  lighten(get(ImGuiCol_ScrollbarGrab)));
+    set(ImGuiCol_ScrollbarGrabActive,   darken(get(ImGuiCol_ScrollbarGrab)));
+    set(ImGuiCol_CheckMark,             { 0.44314f, 0.37647f, 0.90980f, 1.00f });
+    set(ImGuiCol_SliderGrab,            { 0.14118f, 0.14118f, 0.14118f, 1.00f });
+    set(ImGuiCol_SliderGrabActive,      darken(get(ImGuiCol_SliderGrab)));
+    set(ImGuiCol_Button,                { 0.29020f, 0.24314f, 0.61176f, 1.00f });
+    set(ImGuiCol_ButtonHovered,         lighten(get(ImGuiCol_Button)));
+    set(ImGuiCol_ButtonActive,          darken(get(ImGuiCol_Button)));
+    set(ImGuiCol_Header,                { 0.29020f, 0.24314f, 0.61176f, 1.00f });
+    set(ImGuiCol_HeaderHovered,         lighten(get(ImGuiCol_Header)));
+    set(ImGuiCol_HeaderActive,          darken(get(ImGuiCol_Header)));
+    set(ImGuiCol_Separator,             { 1.0f, 1.0f, 1.0f, 0.15f });
+    set(ImGuiCol_SeparatorHovered,      lighten(get(ImGuiCol_Separator)));
+    set(ImGuiCol_SeparatorActive,       darken(get(ImGuiCol_Separator)));
+    set(ImGuiCol_ResizeGrip,            { 0.29020f, 0.24314f, 0.61176f, 1.00f });
+    set(ImGuiCol_ResizeGripHovered,     lighten(get(ImGuiCol_ResizeGrip)));
+    set(ImGuiCol_ResizeGripActive,      darken(get(ImGuiCol_ResizeGrip)));
+    set(ImGuiCol_Tab,                   { 0.18039f, 0.18039f, 0.18039f, 1.00f });
+    set(ImGuiCol_TabHovered,            lighten(get(ImGuiCol_Tab)));
+    set(ImGuiCol_TabActive,             { 0.29020f, 0.24314f, 0.61176f, 1.00f });
+    set(ImGuiCol_TabUnfocused,          { 0.18039f, 0.18039f, 0.18039f, 1.00f });
+    set(ImGuiCol_TabUnfocusedActive,    { 0.29020f, 0.24314f, 0.61176f, 1.00f });
+    set(ImGuiCol_DockingPreview,        RGBA_to_fRGBA(get(ImGuiCol_HeaderActive)) * ImVec4(1.0f, 1.0f, 1.0f, 0.7f));
+    set(ImGuiCol_DockingEmptyBg,        { 0.20f, 0.20f, 0.20f, 1.00f });
+    set(ImGuiCol_PlotLines,             { 0.61f, 0.61f, 0.61f, 1.00f });
+    set(ImGuiCol_PlotLinesHovered,      lighten(get(ImGuiCol_PlotLines)));
+    set(ImGuiCol_PlotHistogram,         { 0.29020f, 0.24314f, 0.61176f, 1.00f });
+    set(ImGuiCol_PlotHistogramHovered,  get(ImGuiCol_PlotHistogram));
+    set(ImGuiCol_TableHeaderBg,         { 0.19f, 0.19f, 0.20f, 1.00f });
+    set(ImGuiCol_TableBorderStrong,     { 0.31f, 0.31f, 0.35f, 1.00f });
+    set(ImGuiCol_TableBorderLight,      { 0.23f, 0.23f, 0.25f, 1.00f });
+    set(ImGuiCol_TableRowBg,            { 0.00f, 0.00f, 0.00f, 0.00f });
+    set(ImGuiCol_TableRowBgAlt,         { 1.00f, 1.00f, 1.00f, 0.06f });
+    set(ImGuiCol_TextSelectedBg,        { 0.29020f, 0.24314f, 0.61176f, 0.35f });
+    set(ImGuiCol_DragDropTarget,        { 1.00f, 1.00f, 0.00f, 0.90f });
+    set(ImGuiCol_NavHighlight,          { 0.26f, 0.59f, 0.98f, 1.00f });
+    set(ImGuiCol_NavWindowingHighlight, { 1.00f, 1.00f, 1.00f, 0.70f });
+    set(ImGuiCol_NavWindowingDimBg,     { 0.80f, 0.80f, 0.80f, 0.20f });
+    set(ImGuiCol_ModalWindowDimBg,      { 0.80f, 0.80f, 0.80f, 0.35f });
+    
+    /*
+        ImGui extensions
+    */
+
+    set(theme_col::composite,         { 0.14118f, 0.14118f, 0.14118f, 1.00f });
+    set(theme_col::composite_hovered, { 0.23922f, 0.23922f, 0.23922f, 1.00f });
+    set(theme_col::context_menu,      { 0.21961f, 0.21961f, 0.21961f, 1.00f });
 }
 
-uint32_t theme::set(theme_col col, uint32_t rgba) {
-    uint32_t prev = m_colors[col];
-    m_colors[col] = rgba;
-    return prev;
-}
+void theme::pop(size_t count) {
+    count = std::min(count, m_backup_col.size());
 
-uint32_t theme::get(theme_col col) {
-    return m_colors[col];
-}
+    while (count) {
+        backup_col& col = m_backup_col.back();
 
-void theme::apply() {
-    ImGuiStyle* style  = &ImGui::GetStyle();
-    ImVec4*     colors = style->Colors;
+        if (col.type == std::type_index(typeid(ImGuiCol_)).hash_code()) {
+            ImGui::PopStyleColor(1);
+        }
+        else {
+            m_col[col.type][col.col] = col.value;
+        }
 
-    style->TabRounding              = 0.0f;
-    style->TabBarBorderSize         = 2.0f;
-    style->DockingSeparatorSize     = 1.0f;
-    style->WindowBorderSize         = 0.0f;
-    style->WindowMenuButtonPosition = ImGuiDir_Right;
-
-    colors[ImGuiCol_Text]                  = RGBA_to_fRGBA(m_colors[theme_col::text]);
-    colors[ImGuiCol_TextDisabled]          = RGBA_to_fRGBA(m_colors[theme_col::text_disabled]);
-    colors[ImGuiCol_WindowBg]              = RGBA_to_fRGBA(m_colors[theme_col::window_background]);
-    colors[ImGuiCol_ChildBg]               = RGBA_to_fRGBA(m_colors[theme_col::child_background]);
-    colors[ImGuiCol_PopupBg]               = RGBA_to_fRGBA(m_colors[theme_col::popup_background]);
-    colors[ImGuiCol_Border]                = RGBA_to_fRGBA(m_colors[theme_col::border]);
-    colors[ImGuiCol_BorderShadow]          = RGBA_to_fRGBA(m_colors[theme_col::border_shadow]);
-    colors[ImGuiCol_FrameBg]               = RGBA_to_fRGBA(m_colors[theme_col::frame_background]);
-    colors[ImGuiCol_FrameBgHovered]        = lighten(m_colors[theme_col::frame_background]);
-    colors[ImGuiCol_FrameBgActive]         = darken(m_colors[theme_col::frame_background]);
-    colors[ImGuiCol_TitleBg]               = RGBA_to_fRGBA(m_colors[theme_col::title_background]);
-    colors[ImGuiCol_TitleBgActive]         = RGBA_to_fRGBA(m_colors[theme_col::title_background]);
-    colors[ImGuiCol_TitleBgCollapsed]      = RGBA_to_fRGBA(m_colors[theme_col::title_background_collapsed]);
-    colors[ImGuiCol_MenuBarBg]             = RGBA_to_fRGBA(m_colors[theme_col::menu_bar_background]);
-    colors[ImGuiCol_ScrollbarBg]           = RGBA_to_fRGBA(m_colors[theme_col::scroll]);
-    colors[ImGuiCol_ScrollbarGrab]         = RGBA_to_fRGBA(m_colors[theme_col::scroll_grab]);
-    colors[ImGuiCol_ScrollbarGrabHovered]  = lighten(m_colors[theme_col::scroll_grab]);
-    colors[ImGuiCol_ScrollbarGrabActive]   = darken(m_colors[theme_col::scroll_grab]);
-    colors[ImGuiCol_CheckMark]             = RGBA_to_fRGBA(m_colors[theme_col::check_mark]);
-    colors[ImGuiCol_SliderGrab]            = RGBA_to_fRGBA(m_colors[theme_col::slide_grab]);
-    colors[ImGuiCol_SliderGrabActive]      = darken(m_colors[theme_col::slide_grab]);
-    colors[ImGuiCol_Button]                = RGBA_to_fRGBA(m_colors[theme_col::button]);
-    colors[ImGuiCol_ButtonHovered]         = lighten(m_colors[theme_col::button]);
-    colors[ImGuiCol_ButtonActive]          = darken(m_colors[theme_col::button]);
-    colors[ImGuiCol_Header]                = RGBA_to_fRGBA(m_colors[theme_col::header]);
-    colors[ImGuiCol_HeaderHovered]         = RGBA_to_fRGBA(m_colors[theme_col::header_hovered]);
-    colors[ImGuiCol_HeaderActive]          = darken(m_colors[theme_col::header_hovered]);
-    colors[ImGuiCol_Separator]             = RGBA_to_fRGBA(m_colors[theme_col::separator]);
-    colors[ImGuiCol_SeparatorHovered]      = lighten(m_colors[theme_col::separator]);
-    colors[ImGuiCol_SeparatorActive]       = darken(m_colors[theme_col::separator]);
-    colors[ImGuiCol_ResizeGrip]            = RGBA_to_fRGBA(m_colors[theme_col::resize]);
-    colors[ImGuiCol_ResizeGripHovered]     = lighten(m_colors[theme_col::resize]);
-    colors[ImGuiCol_ResizeGripActive]      = darken(m_colors[theme_col::resize]);
-    colors[ImGuiCol_Tab]                   = RGBA_to_fRGBA(m_colors[theme_col::tab_unfocused]);
-    colors[ImGuiCol_TabHovered]            = lighten(m_colors[theme_col::tab]);
-    colors[ImGuiCol_TabActive]             = RGBA_to_fRGBA(m_colors[theme_col::tab]);
-    colors[ImGuiCol_TabUnfocused]          = RGBA_to_fRGBA(m_colors[theme_col::tab_unfocused]);
-    colors[ImGuiCol_TabUnfocusedActive]    = RGBA_to_fRGBA(m_colors[theme_col::tab]);
-    colors[ImGuiCol_DockingPreview]        = colors[ImGuiCol_HeaderActive] * ImVec4(1.0f, 1.0f, 1.0f, 0.7f);
-    colors[ImGuiCol_DockingEmptyBg]        = RGBA_to_fRGBA(m_colors[theme_col::docking_empty_background]);
-    colors[ImGuiCol_PlotLines]             = RGBA_to_fRGBA(m_colors[theme_col::plot_line]);
-    colors[ImGuiCol_PlotLinesHovered]      = lighten(m_colors[theme_col::plot_line]);
-    colors[ImGuiCol_PlotHistogram]         = RGBA_to_fRGBA(m_colors[theme_col::plot_histogram]);
-    colors[ImGuiCol_PlotHistogramHovered]  = colors[ImGuiCol_PlotHistogram];
-    colors[ImGuiCol_TableHeaderBg]         = RGBA_to_fRGBA(m_colors[theme_col::table_header]);
-    colors[ImGuiCol_TableBorderStrong]     = RGBA_to_fRGBA(m_colors[theme_col::table_border_strong]);
-    colors[ImGuiCol_TableBorderLight]      = RGBA_to_fRGBA(m_colors[theme_col::table_border_light]);
-    colors[ImGuiCol_TableRowBg]            = RGBA_to_fRGBA(m_colors[theme_col::table_row]);
-    colors[ImGuiCol_TableRowBgAlt]         = RGBA_to_fRGBA(m_colors[theme_col::table_row_alt]);
-    colors[ImGuiCol_TextSelectedBg]        = RGBA_to_fRGBA(m_colors[theme_col::text_selected_background]);
-    colors[ImGuiCol_DragDropTarget]        = RGBA_to_fRGBA(m_colors[theme_col::drag_drop_target]);
-    colors[ImGuiCol_NavHighlight]          = RGBA_to_fRGBA(m_colors[theme_col::nav_highlight]);
-    colors[ImGuiCol_NavWindowingHighlight] = RGBA_to_fRGBA(m_colors[theme_col::nav_highlight_window]);
-    colors[ImGuiCol_NavWindowingDimBg]     = RGBA_to_fRGBA(m_colors[theme_col::nav_highlight_window_dim]);
-    colors[ImGuiCol_ModalWindowDimBg]      = RGBA_to_fRGBA(m_colors[theme_col::modal_dim]);
-}
-
-void theme::save() {
-    for (auto& [col, value] : m_colors)
-        m_saved_colors[col] = value;
-}
-
-void theme::restore() {
-    for (auto& [col, value] : m_saved_colors)
-        m_colors[col] = value;
-
-    apply();
+        m_backup_col.pop_back();
+        count--;
+    }
 }

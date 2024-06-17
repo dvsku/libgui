@@ -198,9 +198,6 @@ void gui_window::show() {
     // Cancel showing if prepare failed
     if (!prepare()) return;
 
-    // Set the theme
-    theme::apply();
-
     loop();
 }
 
