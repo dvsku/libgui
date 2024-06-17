@@ -31,7 +31,7 @@ void dvsku::imgui::end_composite() {
 
 bool dvsku::imgui::begin_item_context_menu(const char* id, ImGuiPopupFlags popup_flags) {
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 8.0f, 6.0f });
-    ImGui::PushStyleColor(ImGuiCol_PopupBg, theme::get(theme_col::context_menu));
+    theme::push(ImGuiCol_PopupBg, theme::get(theme_col::context_menu));
 
     ImGui::SetNextWindowSize({ 225.0f, 0.0f });
 
@@ -57,7 +57,7 @@ bool dvsku::imgui::begin_item_context_menu(const char* id, ImGuiPopupFlags popup
     bool result = ImGui::BeginPopupEx(item_id, flags);
 
     ImGui::PopStyleVar(1);
-    ImGui::PopStyleColor(1);
+    theme::pop();
 
     return result;
 }
