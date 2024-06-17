@@ -14,14 +14,13 @@ bool dvsku::imgui::begin_composite(const char* id, const ImVec2& size, bool bord
 
     pos_max = { pos.x + size_arg.x, pos.y + size_arg.y };
     
-    if (ImGui::IsMouseHoveringRect(pos, pos_max) && !ImGui::IsAnyItemHovered())
-        ImGui::PushStyleColor(ImGuiCol_ChildBg, theme::get(theme_col::composite_hovered));
-    else
-        ImGui::PushStyleColor(ImGuiCol_ChildBg, theme::get(theme_col::composite));
+    bool hovered = ImGui::IsMouseHoveringRect(pos, pos_max)
+                   && !ImGui::IsAnyItemHovered()
+                   && !ImGui::IsPopupOpen(nullptr, ImGuiPopupFlags_AnyPopupId);
 
+    theme::push(ImGuiCol_ChildBg, theme::get(hovered ? theme_col::composite_hovered : theme_col::composite));
     bool retval = ImGui::BeginChild(id, size, border, flags);
-
-    ImGui::PopStyleColor(1);
+    theme::pop(1);
 
     return retval;
 }
