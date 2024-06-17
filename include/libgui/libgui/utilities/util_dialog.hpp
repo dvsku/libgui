@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-namespace dvsku {
+namespace libgui {
     class util_dialog {
     public:
         static std::string open_file(const std::string& title, const std::string& path, 

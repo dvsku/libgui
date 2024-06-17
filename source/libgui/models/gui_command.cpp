@@ -1,6 +1,6 @@
 #include "libgui/models/gui_command.hpp"
 
-using namespace dvsku;
+using namespace libgui;
 
 gui_command::gui_command(command_fn_t fn) {
     m_fn = fn;

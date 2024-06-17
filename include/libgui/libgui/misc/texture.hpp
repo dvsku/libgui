@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <string>
 
-namespace dvsku {
+namespace libgui {
     class texture {
     public:
         uint32_t id         = 0U;

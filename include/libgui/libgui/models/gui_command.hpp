@@ -2,7 +2,7 @@
 
 #include <functional>
 
-namespace dvsku {
+namespace libgui {
     enum class gui_command_state : unsigned char {
         finished = 0,
         repeat   = 1

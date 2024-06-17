@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace dvsku {
+namespace libgui {
     constexpr auto get_backend_type() {
     #ifdef LIBGUI_OPENGL2
         return "OpenGL2";

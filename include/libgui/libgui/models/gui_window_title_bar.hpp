@@ -1,6 +1,6 @@
 #pragma once
 
-namespace dvsku {
+namespace libgui {
     /*
         Custom title bar hit test config.
         Used by the underlying windowing system to determine parts of a custom title bar.

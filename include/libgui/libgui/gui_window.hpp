@@ -6,7 +6,7 @@
 
 #include <string>
 
-namespace dvsku {
+namespace libgui {
     class gui_window_context;
 
     class gui_window {

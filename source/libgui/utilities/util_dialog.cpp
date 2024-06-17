@@ -1,7 +1,7 @@
 #include "libgui/utilities/util_dialog.hpp"
 #include "pfd/portable-file-dialogs.h"
 
-using namespace dvsku;
+using namespace libgui;
 
 ///////////////////////////////////////////////////////////////////////////////
 // PUBLIC
@@ -19,7 +19,7 @@ std::vector<std::string> util_dialog::open_file_multiple(const std::string& titl
     return pfd::open_file(title, path, filters, pfd::opt::multiselect).result();
 }
 
-std::string dvsku::util_dialog::save_file(const std::string& title, const std::string& path, 
+std::string util_dialog::save_file(const std::string& title, const std::string& path, 
     bool confirm_override, std::vector<std::string> filters) 
 {
     return pfd::save_file(title, path, filters, confirm_override ? pfd::opt::none : pfd::opt::force_overwrite).result();

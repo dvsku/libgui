@@ -3,12 +3,12 @@
 #include <imgui/imgui_internal.h>
 #include <iostream>
 
-using namespace dvsku;
+using namespace libgui;
 
-class app : public dvsku::gui_window {
+class app : public libgui::gui_window {
 public:
-    app(const dvsku::gui_window_settings& settings)
-        : dvsku::gui_window(settings) {}
+    app(const libgui::gui_window_settings& settings)
+        : libgui::gui_window(settings) {}
 
 protected:
     bool prepare() override final {
@@ -22,12 +22,12 @@ protected:
         ImGuiIO& io = ImGui::GetIO();
 
         // Add default font
-        io.Fonts->AddFontFromMemoryTTF(AVERAGE_MONO, (int)AVERAGE_MONO_LEN, 13.0f, &config);
+        io.Fonts->AddFontFromMemoryTTF(font::FONT_AVERAGE_MONO, (int)font::FONT_AVERAGE_MONO_LEN, 13.0f, &config);
 
         // Add font awesome
         config.MergeMode = true;
         static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
-        io.Fonts->AddFontFromMemoryTTF(FONTAWESOME_SOLID, (int)FONTAWESOME_SOLID_LEN, 13.0f, &config, icon_ranges);
+        io.Fonts->AddFontFromMemoryTTF(font::FONT_FONTAWESOME_SOLID, (int)font::FONT_FONTAWESOME_SOLID_LEN, 13.0f, &config, icon_ranges);
 
         // Build fonts
         io.Fonts->Build();
@@ -134,10 +134,10 @@ int main() {
     dvsku::util_log::init(log_settings);
     dvsku::util_log::create_source("console", &std::cout);
 
-    dvsku::gui_window_settings settings;
+    libgui::gui_window_settings settings;
     settings.width  = 1024;
     settings.height = 768;
-    settings.title  = std::string("Borderless ") + dvsku::get_backend_type();
+    settings.title  = std::string("Borderless ") + libgui::get_backend_type();
 
     app app(settings);
     app.show();

@@ -1,6 +1,6 @@
 #include "libgui/misc/version.hpp"
 
-using namespace dvsku;
+using namespace libgui;
 
 ///////////////////////////////////////////////////////////////////////////////
 // INTERNAL
@@ -51,7 +51,7 @@ uint16_t version::get_rev() const {
     return static_cast<uint16_t>((m_packed_ver >> 16) & 0xFFFF);
 }
 
-const std::string& dvsku::version::to_string() const {
+const std::string& version::to_string() const {
     return m_str_ver;
 }
 

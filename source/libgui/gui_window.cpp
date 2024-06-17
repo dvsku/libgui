@@ -39,12 +39,12 @@
 #include <imgui_internal.h>
 #include <backends/imgui_impl_glfw.h>
 
-using namespace dvsku;
+using namespace libgui;
 
 ///////////////////////////////////////////////////////////////////////////////
 // INTERNAL
 
-namespace dvsku {
+namespace libgui {
     class gui_window_context {
     public:
         static LRESULT CALLBACK wndproc_callback(HWND handle, UINT msg, WPARAM wparam, LPARAM lparam);
@@ -189,7 +189,7 @@ void gui_window::set_taskbar_progress(uint64_t progress) {
 
 void gui_window::show() {
 #ifndef NDEBUG
-    DV_LOG_DEBG("", "OpenGL backend:  {}", dvsku::get_backend_type());
+    DV_LOG_DEBG("", "OpenGL backend:  {}", libgui::get_backend_type());
     DV_LOG_DEBG("", "OpenGL version:  {}", (char*)glGetString(GL_VERSION));
     DV_LOG_DEBG("", "OpenGL renderer: {}", (char*)glGetString(GL_RENDERER));
     DV_LOG_DEBG("", "ImGUI version:   {}", get_imgui_version());

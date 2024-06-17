@@ -3,7 +3,7 @@
 #include <string>
 #include <cstdint>
 
-namespace dvsku {
+namespace libgui {
     struct gui_window_settings {
         uint32_t width  = 1024U;
         uint32_t height = 768U;

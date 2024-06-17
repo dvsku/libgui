@@ -1,6 +1,6 @@
 #pragma once
 
-namespace dvsku {
+namespace libgui {
     enum class gui_taskbar_status : unsigned int {
         no_progress   = 0x0,
         indeterminate = 0x1,

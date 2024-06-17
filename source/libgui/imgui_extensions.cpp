@@ -1,7 +1,7 @@
 #include "libgui/imgui_extensions.hpp"
 #include "libgui/theme.hpp"
 
-bool dvsku::imgui::begin_composite(const char* id, const ImVec2& size, bool border, ImGuiWindowFlags flags) {
+bool libgui::imgui::begin_composite(const char* id, const ImVec2& size, bool border, ImGuiWindowFlags flags) {
     ImVec2 size_arg = size;
     ImVec2 pos      = ImGui::GetCursorScreenPos();
     ImVec2 pos_max  = {};
@@ -25,11 +25,11 @@ bool dvsku::imgui::begin_composite(const char* id, const ImVec2& size, bool bord
     return retval;
 }
 
-void dvsku::imgui::end_composite() {
+void libgui::imgui::end_composite() {
     ImGui::EndChild();
 }
 
-bool dvsku::imgui::begin_item_context_menu(const char* id, ImGuiPopupFlags popup_flags) {
+bool libgui::imgui::begin_item_context_menu(const char* id, ImGuiPopupFlags popup_flags) {
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 8.0f, 6.0f });
     theme::push(ImGuiCol_PopupBg, theme::get(theme_col::context_menu));
 
@@ -62,11 +62,11 @@ bool dvsku::imgui::begin_item_context_menu(const char* id, ImGuiPopupFlags popup
     return result;
 }
 
-void dvsku::imgui::end_item_context_menu() {
+void libgui::imgui::end_item_context_menu() {
     ImGui::EndPopup();
 }
 
-bool dvsku::imgui::begin_menu(const char* label, bool enabled) {
+bool libgui::imgui::begin_menu(const char* label, bool enabled) {
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 8.0f, 6.0f });
     ImGui::PushStyleColor(ImGuiCol_PopupBg, theme::get(theme_col::context_menu));
 
@@ -79,11 +79,11 @@ bool dvsku::imgui::begin_menu(const char* label, bool enabled) {
     return result;
 }
 
-void dvsku::imgui::end_menu() {
+void libgui::imgui::end_menu() {
     ImGui::EndMenu();
 }
 
-void dvsku::imgui::text_ellipsis(const char* label, float max) {
+void libgui::imgui::text_ellipsis(const char* label, float max) {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     ImGuiStyle&  style  = ImGui::GetStyle();
 

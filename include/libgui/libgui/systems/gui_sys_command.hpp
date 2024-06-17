@@ -5,7 +5,7 @@
 
 #include <map>
 
-namespace dvsku {
+namespace libgui {
     template<typename T>
     requires is_enum<T>
     class gui_sys_command {

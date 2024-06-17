@@ -1,6 +1,6 @@
 #pragma once
 
-namespace dvsku {
+namespace libgui {
     class util_sound {
     public:
         static void warning();

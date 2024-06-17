@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace dvsku {
+namespace libgui {
     ////////////////////////////////////////////////////////////////////////////
     // EXTENSION COLORS
 

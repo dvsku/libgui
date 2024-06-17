@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <string>
 
-namespace dvsku {
+namespace libgui {
     class version {
     public:
         version() = default;

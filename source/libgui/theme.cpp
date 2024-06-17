@@ -1,6 +1,6 @@
 #include "libgui/theme.hpp"
 
-using namespace dvsku;
+using namespace libgui;
 
 void theme::init() {
     ImGuiStyle& style = ImGui::GetStyle();
