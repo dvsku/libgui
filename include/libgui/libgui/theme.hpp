@@ -79,7 +79,7 @@ namespace libgui {
         static void init();
 
         template<typename Col>
-        static void push(Col col, uint32_t value) {
+        static void push_col(Col col, uint32_t value) {
             m_backup_col.push_back({});
             m_backup_col.back().type = std::type_index(typeid(Col)).hash_code();
             m_backup_col.back().col  = (int)col;
@@ -93,10 +93,10 @@ namespace libgui {
             }
         }
 
-        static void pop(size_t count = 1);
+        static void pop_col(size_t count = 1);
 
         template<typename Col>
-        static void set(Col col, uint32_t value) {
+        static void set_col(Col col, uint32_t value) {
             if (typeid(Col) == typeid(ImGuiCol_)) {
                 ImGui::GetStyle().Colors[(int)col] = RGBA_to_fRGBA(value);
             }
@@ -106,7 +106,7 @@ namespace libgui {
         }
 
         template<typename Col>
-        static void set(Col col, ImVec4 value) {
+        static void set_col(Col col, ImVec4 value) {
             if (typeid(Col) == typeid(ImGuiCol_)) {
                 ImGui::GetStyle().Colors[(int)col] = value;
             }
@@ -116,7 +116,7 @@ namespace libgui {
         }
 
         template<typename Col>
-        static uint32_t get(Col col) {
+        static uint32_t get_col(Col col) {
             if (typeid(Col) == typeid(ImGuiCol_)) {
                 return fRGBA_to_RGBA(ImGui::GetStyle().Colors[(int)col]);
             }
@@ -132,14 +132,9 @@ namespace libgui {
         static void set_font(const std::string& id);
 
     private:
-        //using font_atlas_t = std::unordered_map<float, std::vector<font>>;
-
-    private:
         inline static std::unordered_map<size_t, std::unordered_map<int, uint32_t>> m_col          = {};
         inline static std::vector<backup_col>                                       m_backup_col   = {};
         inline static std::vector<font_source>                                      m_font_sources = {};
         inline static std::map<std::string, ImFont*>                                m_fonts        = {};
-
-        //inline static std::unique_ptr<font_atlas_t>                                 m_font_atlas = nullptr;
     };
 }

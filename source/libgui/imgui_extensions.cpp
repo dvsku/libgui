@@ -18,9 +18,9 @@ bool libgui::imgui::begin_composite(const char* id, const ImVec2& size, bool bor
                    && !ImGui::IsAnyItemHovered()
                    && !ImGui::IsPopupOpen(nullptr, ImGuiPopupFlags_AnyPopupId);
 
-    theme::push(ImGuiCol_ChildBg, theme::get(hovered ? theme_col::composite_hovered : theme_col::composite));
+    theme::push_col(ImGuiCol_ChildBg, theme::get_col(hovered ? theme_col::composite_hovered : theme_col::composite));
     bool retval = ImGui::BeginChild(id, size, border, flags);
-    theme::pop(1);
+    theme::pop_col(1);
 
     return retval;
 }
@@ -31,7 +31,7 @@ void libgui::imgui::end_composite() {
 
 bool libgui::imgui::begin_item_context_menu(const char* id, ImGuiPopupFlags popup_flags) {
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 8.0f, 6.0f });
-    theme::push(ImGuiCol_PopupBg, theme::get(theme_col::context_menu));
+    theme::push_col(ImGuiCol_PopupBg, theme::get_col(theme_col::context_menu));
 
     ImGui::SetNextWindowSize({ 225.0f, 0.0f });
 
@@ -57,7 +57,7 @@ bool libgui::imgui::begin_item_context_menu(const char* id, ImGuiPopupFlags popu
     bool result = ImGui::BeginPopupEx(item_id, flags);
 
     ImGui::PopStyleVar(1);
-    theme::pop();
+    theme::pop_col();
 
     return result;
 }
@@ -68,7 +68,7 @@ void libgui::imgui::end_item_context_menu() {
 
 bool libgui::imgui::begin_menu(const char* label, bool enabled) {
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 8.0f, 6.0f });
-    ImGui::PushStyleColor(ImGuiCol_PopupBg, theme::get(theme_col::context_menu));
+    ImGui::PushStyleColor(ImGuiCol_PopupBg, theme::get_col(theme_col::context_menu));
 
     ImGui::SetNextWindowSize({ 225.0f, 0.0f });
     bool result = ImGui::BeginMenu(label, enabled);
