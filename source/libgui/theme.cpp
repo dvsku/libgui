@@ -33,7 +33,7 @@ void theme::init() {
     set_col(ImGuiCol_ScrollbarGrabHovered,  lighten(get_col(ImGuiCol_ScrollbarGrab)));
     set_col(ImGuiCol_ScrollbarGrabActive,   darken(get_col(ImGuiCol_ScrollbarGrab)));
     set_col(ImGuiCol_CheckMark,             { 0.44314f, 0.37647f, 0.90980f, 1.00f });
-    set_col(ImGuiCol_SliderGrab,            { 0.14118f, 0.14118f, 0.14118f, 1.00f });
+    set_col(ImGuiCol_SliderGrab,            { 0.29020f, 0.24314f, 0.61176f, 1.00f });
     set_col(ImGuiCol_SliderGrabActive,      darken(get_col(ImGuiCol_SliderGrab)));
     set_col(ImGuiCol_Button,                { 0.29020f, 0.24314f, 0.61176f, 1.00f });
     set_col(ImGuiCol_ButtonHovered,         lighten(get_col(ImGuiCol_Button)));
