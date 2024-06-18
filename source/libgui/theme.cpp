@@ -118,8 +118,8 @@ void theme::add_font(const std::string& id, float size, const std::vector<font_s
         if (font.filename == "" && (!font.data || !font.size))
             throw std::runtime_error("Font has no source.");
 
-        config.MergeMode            = i != 0 && fonts.size() > 1 ? true : false;
-        config.FontDataOwnedByAtlas = font.filename != ""        ? true : false;
+        config.MergeMode            = i != m_font_sources.size() - fonts.size() && fonts.size() > 1 ? true : false;
+        config.FontDataOwnedByAtlas = font.filename != "" ? true : false;
         config.OversampleH          = font.config.oversample_h;
         config.OversampleV          = font.config.oversample_v;
         config.GlyphExtraSpacing    = font.config.extra_spacing;
