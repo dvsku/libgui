@@ -42,7 +42,7 @@ bool libgui::imgui::begin_item_context_menu(const char* id, ImGuiPopupFlags popu
         return false;
 
     ImGuiID item_id = id ? window->GetID(id) : g.LastItemData.ID;
-    IM_ASSERT(id != 0);
+    IM_ASSERT(item_id != 0);
 
     int mouse_button = (popup_flags & ImGuiPopupFlags_MouseButtonMask_);
     if (ImGui::IsMouseReleased(mouse_button) && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup))
