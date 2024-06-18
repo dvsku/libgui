@@ -19,6 +19,10 @@ namespace libgui {
         composite,
         composite_hovered,
         context_menu,
+        icon_button,
+        icon_button_hovered,
+        icon_button_activated,
+        icon_button_text
     };
 
     ////////////////////////////////////////////////////////////////////////////

@@ -13,5 +13,7 @@ namespace libgui::imgui {
     bool begin_menu(const char* label, bool enabled = true);
     void end_menu();
 
+    bool icon_button(const char* label, const ImVec2& size = { 0.0f, 0.0f }, const ImVec2& offset = { 0.5f, 0.5f });
+
     void text_ellipsis(const char* label, float max = 0.0f);
 }

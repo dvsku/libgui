@@ -83,6 +83,22 @@ void libgui::imgui::end_menu() {
     ImGui::EndMenu();
 }
 
+bool libgui::imgui::icon_button(const char* label, const ImVec2& size, const ImVec2& offset) {
+    ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, offset);
+
+    theme::push_col(ImGuiCol_Button,        theme::get_col(theme_col::icon_button));
+    theme::push_col(ImGuiCol_ButtonHovered, theme::get_col(theme_col::icon_button_hovered));
+    theme::push_col(ImGuiCol_ButtonActive,  theme::get_col(theme_col::icon_button_activated));
+    theme::push_col(ImGuiCol_Text,          theme::get_col(theme_col::icon_button_text));
+
+    bool retval = ImGui::Button(label, size);
+    
+    theme::pop_col(4);
+    ImGui::PopStyleVar();
+
+    return retval;
+}
+
 void libgui::imgui::text_ellipsis(const char* label, float max) {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     ImGuiStyle&  style  = ImGui::GetStyle();

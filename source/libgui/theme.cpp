@@ -74,9 +74,13 @@ void theme::init() {
         ImGui extensions
     */
 
-    set_col(theme_col::composite,         { 0.14118f, 0.14118f, 0.14118f, 1.00f });
-    set_col(theme_col::composite_hovered, { 0.23922f, 0.23922f, 0.23922f, 1.00f });
-    set_col(theme_col::context_menu,      { 0.18040f, 0.18040f, 0.18040f, 1.00f });
+    set_col(theme_col::composite,             { 0.14118f, 0.14118f, 0.14118f, 1.00f });
+    set_col(theme_col::composite_hovered,     { 0.23922f, 0.23922f, 0.23922f, 1.00f });
+    set_col(theme_col::context_menu,          { 0.18040f, 0.18040f, 0.18040f, 1.00f });
+    set_col(theme_col::icon_button,           { 0.0f, 0.0f, 0.0f, 0.0f });
+    set_col(theme_col::icon_button_hovered,   { 0.23922f, 0.23922f, 0.23922f, 1.00f });
+    set_col(theme_col::icon_button_activated, get_col(theme_col::icon_button_hovered));
+    set_col(theme_col::icon_button_text,      get_col(ImGuiCol_Text));
 }
 
 void theme::pop_col(size_t count) {
