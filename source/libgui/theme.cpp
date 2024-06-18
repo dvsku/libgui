@@ -76,7 +76,7 @@ void theme::init() {
 
     set_col(theme_col::composite,         { 0.14118f, 0.14118f, 0.14118f, 1.00f });
     set_col(theme_col::composite_hovered, { 0.23922f, 0.23922f, 0.23922f, 1.00f });
-    set_col(theme_col::context_menu,      { 0.21961f, 0.21961f, 0.21961f, 1.00f });
+    set_col(theme_col::context_menu,      { 0.18040f, 0.18040f, 0.18040f, 1.00f });
 }
 
 void theme::pop_col(size_t count) {
