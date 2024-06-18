@@ -5,8 +5,11 @@
 #include <imgui/imgui.h>
 #include <typeindex>
 #include <typeinfo>
+#include <map>
 #include <unordered_map>
 #include <vector>
+
+#include "libgui/fonts/font.hpp"
 
 namespace libgui {
     ////////////////////////////////////////////////////////////////////////////
@@ -122,8 +125,21 @@ namespace libgui {
             }
         }
 
+        ////////////////////////////////////////////////////////////////////////
+        // FONTS
+
+        static void add_font(const std::string& id, float size, const std::vector<font_source>& fonts);
+        static void set_font(const std::string& id);
+
     private:
-        inline static std::unordered_map<size_t, std::unordered_map<int, uint32_t>> m_col;
-        inline static std::vector<backup_col>                                       m_backup_col;
+        //using font_atlas_t = std::unordered_map<float, std::vector<font>>;
+
+    private:
+        inline static std::unordered_map<size_t, std::unordered_map<int, uint32_t>> m_col          = {};
+        inline static std::vector<backup_col>                                       m_backup_col   = {};
+        inline static std::vector<font_source>                                      m_font_sources = {};
+        inline static std::map<std::string, ImFont*>                                m_fonts        = {};
+
+        //inline static std::unique_ptr<font_atlas_t>                                 m_font_atlas = nullptr;
     };
 }

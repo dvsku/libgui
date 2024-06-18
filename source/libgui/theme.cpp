@@ -1,5 +1,8 @@
 #include "libgui/theme.hpp"
 
+#include <imgui/imgui_internal.h>
+#include <stdexcept>
+
 using namespace libgui;
 
 void theme::init() {
@@ -91,5 +94,58 @@ void theme::pop(size_t count) {
 
         m_backup_col.pop_back();
         count--;
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// FONTS
+
+void theme::add_font(const std::string& id, float size, const std::vector<font_source>& fonts) {
+    ImGuiIO&     io         = ImGui::GetIO();
+    ImFontConfig config     = {};
+    ImFont*      imgui_font = nullptr;
+
+    config.SizePixels         = size;
+    config.RasterizerMultiply = size < 15.0f ? 1.2f : 1.0f;
+
+    for (auto& font : fonts) {
+        m_font_sources.push_back(font);
+    }
+
+    for (size_t i = m_font_sources.size() - fonts.size(); i < m_font_sources.size(); i++) {
+        const font_source& font = m_font_sources[i];
+        
+        if (font.filename == "" && (!font.data || !font.size))
+            throw std::runtime_error("Font has no source.");
+
+        config.MergeMode            = i != 0 && fonts.size() > 1 ? true : false;
+        config.FontDataOwnedByAtlas = font.filename != ""        ? true : false;
+        config.OversampleH          = font.config.oversample_h;
+        config.OversampleV          = font.config.oversample_v;
+        config.GlyphExtraSpacing    = font.config.extra_spacing;
+        config.GlyphOffset          = font.config.offset;
+        config.GlyphMinAdvanceX     = font.config.advance_x_match_size ? size : font.config.min_advance_x;
+        config.GlyphMaxAdvanceX     = font.config.max_advance_x;
+
+        ImFont* added_font = nullptr;
+        if (font.filename != "") {
+            added_font = io.Fonts->AddFontFromFileTTF(font.filename.c_str(), size, &config, (const ImWchar*)font.range.data());
+        }
+        else {
+            added_font = io.Fonts->AddFontFromMemoryTTF(font.data, (int)font.size, size, &config, (const ImWchar*)font.range.data());
+        }
+
+        if (!config.MergeMode)
+            imgui_font = added_font;
+    }
+
+    io.Fonts->Build();
+
+    m_fonts[id] = imgui_font;
+}
+
+void theme::set_font(const std::string& id) {
+    if (m_fonts.contains(id) && m_fonts[id]) {
+        ImGui::SetCurrentFont(m_fonts[id]);
     }
 }

@@ -22,5 +22,4 @@
 ///////////////////////////////////////////////////////////////////////////////
 // FONTS
 
-#include "libgui/fonts/font_average_mono.hpp"
-#include "libgui/fonts/font_fontawesome_solid.hpp"
+#include "libgui/fonts/font.hpp"
