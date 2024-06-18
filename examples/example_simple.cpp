@@ -1,10 +1,10 @@
 #include <libgui.hpp>
 #include <iostream>
 
-class app : public libgui::gui_window {
+class app : public libgui::window {
 public:
-    app(const libgui::gui_window_settings& settings)
-        : libgui::gui_window(settings) {}
+    app(const libgui::window_settings& settings)
+        : libgui::window(settings) {}
 };
 
 int main() {
@@ -15,10 +15,10 @@ int main() {
     dvsku::util_log::init(log_settings);
     dvsku::util_log::create_source("console", &std::cout);
 
-    libgui::gui_window_settings settings;
+    libgui::window_settings settings;
     settings.width  = 1024;
     settings.height = 768;
-    settings.title  = std::string("Simple ") + libgui::get_backend_type();
+    settings.title  = std::string("Simple ") + libgui::debug::get_backend_type();
 
     app app(settings);
     app.show();

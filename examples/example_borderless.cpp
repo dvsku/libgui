@@ -5,32 +5,20 @@
 
 using namespace libgui;
 
-class app : public libgui::gui_window {
+class app : public libgui::window {
 public:
-    app(const libgui::gui_window_settings& settings)
-        : libgui::gui_window(settings) {}
+    app(const libgui::window_settings& settings)
+        : libgui::window(settings) {}
 
 protected:
     bool prepare() override final {
         set_borderless();
 
-        ImFontConfig config;
-        config.FontDataOwnedByAtlas = false;
-        config.RasterizerMultiply = 1.2f;
-        config.SizePixels = 13.0f;
-
-        ImGuiIO& io = ImGui::GetIO();
-
-        // Add default font
-        io.Fonts->AddFontFromMemoryTTF(font::FONT_AVERAGE_MONO, (int)font::FONT_AVERAGE_MONO_LEN, 13.0f, &config);
-
-        // Add font awesome
-        config.MergeMode = true;
-        static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
-        io.Fonts->AddFontFromMemoryTTF(font::FONT_FONTAWESOME_SOLID, (int)font::FONT_FONTAWESOME_SOLID_LEN, 13.0f, &config, icon_ranges);
-
-        // Build fonts
-        io.Fonts->Build();
+        theme::add_font("default", 13.0f, {
+            font_average_mono,
+            font_fontawesome_solid,
+            font_fontawesome_regular,
+        });
 
         return true;
     }
@@ -134,10 +122,10 @@ int main() {
     dvsku::util_log::init(log_settings);
     dvsku::util_log::create_source("console", &std::cout);
 
-    libgui::gui_window_settings settings;
+    libgui::window_settings settings;
     settings.width  = 1024;
     settings.height = 768;
-    settings.title  = std::string("Borderless ") + libgui::get_backend_type();
+    settings.title  = std::string("Borderless ") + libgui::debug::get_backend_type();
 
     app app(settings);
     app.show();
