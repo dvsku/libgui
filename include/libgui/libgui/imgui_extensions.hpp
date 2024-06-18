@@ -15,5 +15,6 @@ namespace libgui::imgui {
 
     bool icon_button(const char* label, const ImVec2& size = { 0.0f, 0.0f }, const ImVec2& offset = { 0.5f, 0.5f });
 
-    void text_ellipsis(const char* label, float max = 0.0f);
+    void text_ellipsis(const char* label, float max_w = 0.0f);
+    bool link(const char* str, float max_w = 0.0f);
 }

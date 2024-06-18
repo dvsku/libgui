@@ -81,6 +81,9 @@ void theme::init() {
     set_col(theme_col::icon_button_hovered,   { 0.23922f, 0.23922f, 0.23922f, 1.00f });
     set_col(theme_col::icon_button_activated, get_col(theme_col::icon_button_hovered));
     set_col(theme_col::icon_button_text,      get_col(ImGuiCol_Text));
+    set_col(theme_col::link,                  { 0.38824f, 0.32157f, 0.79608f, 1.00f });
+    set_col(theme_col::link_hovered,          lighten(get_col(theme_col::link)));
+    set_col(theme_col::link_activated,        darken(get_col(theme_col::link)));
 }
 
 void theme::pop_col(size_t count) {

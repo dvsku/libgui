@@ -22,7 +22,10 @@ namespace libgui {
         icon_button,
         icon_button_hovered,
         icon_button_activated,
-        icon_button_text
+        icon_button_text,
+        link,
+        link_hovered,
+        link_activated
     };
 
     ////////////////////////////////////////////////////////////////////////////

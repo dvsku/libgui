@@ -1,6 +1,8 @@
 #include "libgui/imgui_extensions.hpp"
 #include "libgui/theme.hpp"
 
+#include <libutil.hpp>
+
 bool libgui::imgui::begin_composite(const char* id, const ImVec2& size, bool border, ImGuiWindowFlags flags) {
     ImVec2 size_arg = size;
     ImVec2 pos      = ImGui::GetCursorScreenPos();
@@ -99,33 +101,63 @@ bool libgui::imgui::icon_button(const char* label, const ImVec2& size, const ImV
     return retval;
 }
 
-void libgui::imgui::text_ellipsis(const char* label, float max) {
+void libgui::imgui::text_ellipsis(const char* label, float max_w) {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     ImGuiStyle&  style  = ImGui::GetStyle();
 
     const ImVec2 label_size = ImGui::CalcTextSize(label, 0, false);
     const ImVec2 pos        = window->DC.CursorPos;
-    const ImVec2 padding    = style.SeparatorTextPadding;
-
-    const float  separator_thickness = style.SeparatorTextBorderSize;
-    const ImVec2 min_size(label_size.x + padding.x * 2.0f, ImMax(label_size.y + padding.y * 2.0f, separator_thickness));
 
     float max_x = window->WorkRect.Max.x;
-    if (max != 0.0f)
-        max_x = pos.x + max;
+    if (max_w != 0.0f)
+        max_x = max_x = max_w > 0.0f ? pos.x + max_w : window->WorkRect.Max.x + max_w;
 
-    const ImRect bb(pos, ImVec2(max_x, pos.y + min_size.y));
+    const ImRect bb(pos, ImVec2(max_x, pos.y + label_size.y));
+    ImGui::ItemSize(bb.GetSize());
 
-    const float sep1_x1 = pos.x;
-    const float sep2_x2 = bb.Max.x;
+    ImGui::RenderTextEllipsis(window->DrawList, pos,
+        ImVec2(bb.Max.x, bb.Max.y + style.ItemSpacing.y), bb.Max.x, bb.Max.x, label, 0, &label_size);
+}
 
-    const float  label_avail_w = ImMax(0.0f, sep2_x2 - sep1_x1 - padding.x * 2.0f);
-    const ImVec2 label_pos(pos.x, pos.y);
+bool libgui::imgui::link(const char* str, float max_w) {
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    if (window->SkipItems)
+        return false;
 
-    if (label_size.x > 0.0f) {
-        window->DC.CursorPosPrevLine.y = window->DC.CursorPos.y;
+    const ImGuiStyle& style      = ImGui::GetStyle();
+    const ImVec2      pos        = window->DC.CursorPos;
+    const ImGuiID     id         = window->GetID(DV_FORMAT("{}##{}_{}", str, pos.x, pos.y).c_str());
+    const ImVec2      label_size = ImGui::CalcTextSize(str, 0, false);
 
-        ImGui::RenderTextEllipsis(window->DrawList, label_pos, ImVec2(bb.Max.x, bb.Max.y + style.ItemSpacing.y), bb.Max.x, bb.Max.x, label, 0, &label_size);
-        window->DC.CursorPos.y += label_size.y + style.FramePadding.y * 2;
-    }
+    float max_x = window->WorkRect.Max.x;
+    if (max_w != 0.0f)
+        max_x = max_w > 0.0f ? pos.x + max_w : window->WorkRect.Max.x + max_w;
+
+    ImRect bb = ImRect(pos, ImVec2(max_x, pos.y + label_size.y));
+    
+    ImGui::ItemSize(bb.GetSize());
+    if (!ImGui::ItemAdd(bb, id))
+        return false;
+
+    bool hovered, held;
+    bool pressed = ImGui::ButtonBehavior(bb, id, &hovered, &held, 0);
+
+    const ImU32 col = 0;
+    ImGui::RenderNavHighlight(bb, id);
+    ImGui::RenderFrame(bb.Min, bb.Max, col, false, style.FrameRounding);
+
+    if (held || pressed)
+        theme::push_col(ImGuiCol_Text, theme::get_col(theme_col::link_activated));
+    else
+        theme::push_col(ImGuiCol_Text, theme::get_col(hovered ? theme_col::link_hovered : theme_col::link));
+
+    ImGui::RenderTextEllipsis(window->DrawList, pos, ImVec2(bb.Max.x, bb.Max.y + style.ItemSpacing.y),
+        bb.Max.x, bb.Max.x, str, 0, &label_size);
+
+    theme::pop_col(1);
+
+    if (hovered || pressed || held)
+        ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+
+    return pressed;
 }
