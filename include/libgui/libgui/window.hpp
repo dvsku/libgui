@@ -1,15 +1,15 @@
 #pragma once
 
-#include "libgui/models/gui_window_settings.hpp"
-#include "libgui/models/gui_window_title_bar.hpp"
-#include "libgui/models/gui_taskbar_status.hpp"
+#include "libgui/models/window_settings.hpp"
+#include "libgui/models/window_title_bar.hpp"
+#include "libgui/models/taskbar_status.hpp"
 
 #include <string>
 
 namespace libgui {
-    class gui_window_context;
+    class window_context;
 
-    class gui_window {
+    class window {
     public:
         using handle_t = void*;
         using ptr_t    = intptr_t*;
@@ -22,18 +22,18 @@ namespace libgui {
         };
 
     public:
-        gui_window(const gui_window_settings& settings);
-    	virtual ~gui_window();
+        window(const window_settings& settings);
+    	virtual ~window();
 
     public:
         // Get custom title bar hit testing flags
-        gui_window_title_bar& get_title_bar();
+        window_title_bar& get_title_bar();
 
         // Get initial window settings
-        const gui_window_settings& get_settings() const;
+        const window_settings& get_settings() const;
 
         // Set taskbar progress bar status.
-        void set_taskbar_status(gui_taskbar_status status);
+        void set_taskbar_status(taskbar_status status);
 
         // Set taskbar progress bar value.
         void set_taskbar_progress(uint64_t progress);
@@ -61,8 +61,8 @@ namespace libgui {
         ptr_t m_native    = nullptr;
         bool  m_resizable = false;
 
-        gui_window_title_bar m_title_bar{};
-        mouse_pos           m_mouse_pos{};
+        window_title_bar m_title_bar{};
+        mouse_pos        m_mouse_pos{};
 
     protected:
     	virtual bool prepare();
@@ -106,10 +106,10 @@ namespace libgui {
         ptr_t m_taskbar = nullptr;
 
     private:
-        gui_window_settings m_settings;
+        window_settings m_settings;
 
     private:
-        friend gui_window_context;
+        friend window_context;
 
     private:
     	void loop();

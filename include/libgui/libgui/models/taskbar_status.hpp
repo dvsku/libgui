@@ -1,7 +1,7 @@
 #pragma once
 
 namespace libgui {
-    enum class gui_taskbar_status : unsigned int {
+    enum class taskbar_status : unsigned int {
         no_progress   = 0x0,
         indeterminate = 0x1,
         normal        = 0x2,

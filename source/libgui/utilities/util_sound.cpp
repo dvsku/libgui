@@ -3,12 +3,10 @@
 #include <windows.h>
 #include <playsoundapi.h>
 
-using namespace libgui;
-
-void util_sound::warning() {
+void libgui::sound::warning() {
     PlaySound((LPCTSTR)SND_ALIAS_SYSTEMHAND, NULL, SND_ALIAS_ID | SND_SYSTEM | SND_ASYNC);
 }
 
-void util_sound::success() {
+void libgui::sound::success() {
     PlaySound((LPCTSTR)SND_ALIAS_SYSTEMASTERISK, NULL, SND_ALIAS_ID | SND_SYSTEM | SND_ASYNC);
 }

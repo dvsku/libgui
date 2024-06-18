@@ -1,21 +1,21 @@
 #pragma once
 
-#include "libgui/models/gui_command.hpp"
+#include "libgui/models/command.hpp"
 #include "libgui/type_traits.hpp"
 
-#include <map>
+#include <unordered_map>
 
 namespace libgui {
     template<typename T>
     requires is_enum<T>
-    class gui_sys_command {
+    class sys_command {
     public:
-        gui_sys_command()                      = default;
-        gui_sys_command(const gui_sys_command&) = delete;
-        gui_sys_command(gui_sys_command&&)      = delete;
+        sys_command()                   = default;
+        sys_command(const sys_command&) = delete;
+        sys_command(sys_command&&)      = delete;
 
-        gui_sys_command& operator=(const gui_sys_command&) = delete;
-        gui_sys_command& operator=(gui_sys_command&&)      = delete;
+        sys_command& operator=(const sys_command&) = delete;
+        sys_command& operator=(sys_command&&)      = delete;
 
     public:
         // Set a command to execute
@@ -39,7 +39,7 @@ namespace libgui {
 
     protected:
         // Set command
-        void set_command(T command_type, const gui_command& cmd) {
+        void set_command(T command_type, const command& cmd) {
             if (m_commands.contains(command_type))
                 return;
 
@@ -47,6 +47,6 @@ namespace libgui {
         }
 
     private:
-        std::map<T, gui_command> m_commands;
+        std::unordered_map<T, command> m_commands;
     };
 }

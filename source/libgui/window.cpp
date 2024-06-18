@@ -6,7 +6,7 @@
 #include <stdexcept>
 #include <versionhelpers.h>
 
-#include "libgui/gui_window.hpp"
+#include "libgui/window.hpp"
 #include "libgui/theme.hpp"
 #include "libgui/utilities/util_debug.hpp"
 #include "libutil/util_log.hpp"
@@ -45,7 +45,7 @@ using namespace libgui;
 // INTERNAL
 
 namespace libgui {
-    class gui_window_context {
+    class window_context {
     public:
         static LRESULT CALLBACK wndproc_callback(HWND handle, UINT msg, WPARAM wparam, LPARAM lparam);
 
@@ -75,7 +75,7 @@ static constexpr auto get_imgui_version() {
 ///////////////////////////////////////////////////////////////////////////////
 // PUBLIC
 
-gui_window::gui_window(const gui_window_settings& settings) {
+window::window(const window_settings& settings) {
     glfwSetErrorCallback(NULL);
 
     if (!glfwInit())
@@ -104,12 +104,12 @@ gui_window::gui_window(const gui_window_settings& settings) {
 
     glfwSetWindowUserPointer(native, this);
 
-    glfwSetWindowSizeCallback(native, gui_window_context::resize_callback);
-    glfwSetScrollCallback(native, gui_window_context::scroll_callback);
-    glfwSetMouseButtonCallback(native, gui_window_context::mouse_button_callback);
-    glfwSetCursorPosCallback(native, gui_window_context::mouse_move_callback);
-    glfwSetWindowIconifyCallback(native, gui_window_context::iconify_callback);
-    glfwSetDropCallback(native, gui_window_context::drop_callback);
+    glfwSetWindowSizeCallback(native, window_context::resize_callback);
+    glfwSetScrollCallback(native, window_context::scroll_callback);
+    glfwSetMouseButtonCallback(native, window_context::mouse_button_callback);
+    glfwSetCursorPosCallback(native, window_context::mouse_move_callback);
+    glfwSetWindowIconifyCallback(native, window_context::iconify_callback);
+    glfwSetDropCallback(native, window_context::drop_callback);
 
     glfwSetWindowMonitor(native, NULL,
         (GetSystemMetrics(SM_CXSCREEN) / 2) - (settings.width  / 2),
@@ -148,7 +148,7 @@ gui_window::gui_window(const gui_window_settings& settings) {
     theme::init();
 }
 
-gui_window::~gui_window() {
+window::~window() {
     // Release taskbar if it exists
     release_taskbar();
 
@@ -159,15 +159,15 @@ gui_window::~gui_window() {
     ImGui::DestroyContext();
 }
 
-gui_window_title_bar& gui_window::get_title_bar() {
+window_title_bar& window::get_title_bar() {
     return m_title_bar;
 }
 
-const gui_window_settings& gui_window::get_settings() const {
+const window_settings& window::get_settings() const {
     return m_settings;
 }
 
-void gui_window::set_taskbar_status(gui_taskbar_status status) {
+void window::set_taskbar_status(taskbar_status status) {
     if (!m_native || !m_taskbar) return;
 
     auto win32_handle = glfwGetWin32Window(LIBGUI_TO_NATIVE(m_native));
@@ -177,7 +177,7 @@ void gui_window::set_taskbar_status(gui_taskbar_status status) {
     taskbar->SetProgressState(win32_handle, (TBPFLAG)status);
 }
 
-void gui_window::set_taskbar_progress(uint64_t progress) {
+void window::set_taskbar_progress(uint64_t progress) {
     if (!m_native || !m_taskbar) return;
 
     auto win32_handle = glfwGetWin32Window(LIBGUI_TO_NATIVE(m_native));
@@ -187,9 +187,9 @@ void gui_window::set_taskbar_progress(uint64_t progress) {
     taskbar->SetProgressValue(win32_handle, (ULONGLONG)progress, 100);
 }
 
-void gui_window::show() {
+void window::show() {
 #ifndef NDEBUG
-    DV_LOG_DEBG("", "OpenGL backend:  {}", libgui::get_backend_type());
+    DV_LOG_DEBG("", "OpenGL backend:  {}", libgui::debug::get_backend_type());
     DV_LOG_DEBG("", "OpenGL version:  {}", (char*)glGetString(GL_VERSION));
     DV_LOG_DEBG("", "OpenGL renderer: {}", (char*)glGetString(GL_RENDERER));
     DV_LOG_DEBG("", "ImGUI version:   {}", get_imgui_version());
@@ -201,15 +201,15 @@ void gui_window::show() {
     loop();
 }
 
-void gui_window::close() {
+void window::close() {
     glfwSetWindowShouldClose(LIBGUI_TO_NATIVE(m_native), 1);
 }
 
-void gui_window::iconify() {
+void window::iconify() {
     glfwIconifyWindow(LIBGUI_TO_NATIVE(m_native));
 }
 
-void gui_window::maximize_or_restore() {
+void window::maximize_or_restore() {
     if (is_maximized()) {
         glfwRestoreWindow(LIBGUI_TO_NATIVE(m_native));
     }
@@ -218,51 +218,51 @@ void gui_window::maximize_or_restore() {
     }
 }
 
-bool gui_window::is_iconified() const {
+bool window::is_iconified() const {
     return glfwGetWindowAttrib(LIBGUI_TO_NATIVE(m_native), GLFW_ICONIFIED);
 }
 
-bool gui_window::is_maximized() const {
+bool window::is_maximized() const {
     return glfwGetWindowAttrib(LIBGUI_TO_NATIVE(m_native), GLFW_MAXIMIZED);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // PROTECTED
 
-bool gui_window::prepare() {
+bool window::prepare() {
     return true;
 }
 
-void gui_window::release() {}
+void window::release() {}
 
-void gui_window::on_before_update() {}
+void window::on_before_update() {}
 
-void gui_window::on_update() {}
+void window::on_update() {}
 
-void gui_window::on_after_update() {}
+void window::on_after_update() {}
 
-void gui_window::on_gui_before_update() {}
+void window::on_gui_before_update() {}
 
-void gui_window::on_gui_update() {}
+void window::on_gui_update() {}
 
-void gui_window::on_gui_after_update() {}
+void window::on_gui_after_update() {}
 
-void gui_window::on_resize(int width, int height) {}
+void window::on_resize(int width, int height) {}
 
-void gui_window::on_scroll(double dx, double dy) {}
+void window::on_scroll(double dx, double dy) {}
 
-void gui_window::on_mouse_button(int btn, int action, int modifier) {}
+void window::on_mouse_button(int btn, int action, int modifier) {}
 
-void gui_window::on_mouse_move(double dx, double dy) {}
+void window::on_mouse_move(double dx, double dy) {}
 
-void gui_window::on_drop(int count, const char* paths[]) {}
+void window::on_drop(int count, const char* paths[]) {}
 
-void gui_window::set_borderless() {
+void window::set_borderless() {
     auto win32_wnd = glfwGetWin32Window(LIBGUI_TO_NATIVE(m_native));
     if (!win32_wnd)
         return;
 
-    gui_window* dv_wnd = (gui_window*)GetWindowLongPtr(win32_wnd, GWLP_USERDATA);
+    window* dv_wnd = (window*)GetWindowLongPtr(win32_wnd, GWLP_USERDATA);
     if (!dv_wnd)
         return;
 
@@ -286,13 +286,13 @@ void gui_window::set_borderless() {
     SetWindowLongPtr(win32_wnd, GWL_STYLE, wnd_style);
 
     // Set new callback
-    SetWindowLongPtr(win32_wnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(gui_window_context::wndproc_callback));
+    SetWindowLongPtr(win32_wnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(window_context::wndproc_callback));
 
     // Force window redraw
     SetWindowPos(win32_wnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
 }
 
-void gui_window::set_resizable(bool value) {
+void window::set_resizable(bool value) {
     m_resizable = value;
 
     if (m_resizable) {
@@ -307,7 +307,7 @@ void gui_window::set_resizable(bool value) {
     }
 }
 
-void gui_window::clear_frame_buffer(float r, float g, float b, float a) {
+void window::clear_frame_buffer(float r, float g, float b, float a) {
     glClearColor(r, g, b, a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
@@ -315,7 +315,7 @@ void gui_window::clear_frame_buffer(float r, float g, float b, float a) {
 ///////////////////////////////////////////////////////////////////////////////
 // PRIVATE
 
-void gui_window::loop() {
+void window::loop() {
     while (!glfwWindowShouldClose(LIBGUI_TO_NATIVE(m_native))) {
     	if (is_iconified()) {
     		glfwWaitEvents();
@@ -358,7 +358,7 @@ void gui_window::loop() {
     release();
 }
 
-void gui_window::prepare_taskbar() {
+void window::prepare_taskbar() {
     if (!IsWindows7OrGreater()) return;
 
     HRESULT result = CoInitialize(NULL);
@@ -379,7 +379,7 @@ void gui_window::prepare_taskbar() {
     m_taskbar = (ptr_t)taskbar;
 }
 
-void gui_window::release_taskbar() {
+void window::release_taskbar() {
     if (!m_taskbar) return;
 
     ITaskbarList3* taskbar = (ITaskbarList3*)m_taskbar;
@@ -391,8 +391,8 @@ void gui_window::release_taskbar() {
 ///////////////////////////////////////////////////////////////////////////////
 // INTERNAL
 
-LRESULT gui_window_context::wndproc_callback(HWND handle, UINT msg, WPARAM wparam, LPARAM lparam) {
-    gui_window* wnd = (gui_window*)GetWindowLongPtr(handle, GWLP_USERDATA);
+LRESULT window_context::wndproc_callback(HWND handle, UINT msg, WPARAM wparam, LPARAM lparam) {
+    window* wnd = (window*)GetWindowLongPtr(handle, GWLP_USERDATA);
     if (!wnd)
         throw std::runtime_error("");
 
@@ -513,32 +513,32 @@ LRESULT gui_window_context::wndproc_callback(HWND handle, UINT msg, WPARAM wpara
     return CallWindowProc((WNDPROC)wnd->m_default_callback, handle, msg, wparam, lparam);
 }
 
-void gui_window_context::resize_callback(GLFWwindow* window, int width, int height) {
+void window_context::resize_callback(GLFWwindow* window, int width, int height) {
     if (width == 0 || height == 0) return;
 
-    gui_window* instance = static_cast<gui_window*>(glfwGetWindowUserPointer(window));
+    libgui::window* instance = static_cast<libgui::window*>(glfwGetWindowUserPointer(window));
     if (!instance) return;
 
     glViewport(0, 0, width, height);
     instance->on_resize(width, height);
 }
 
-void gui_window_context::scroll_callback(GLFWwindow* window, double dx, double dy) {
-    gui_window* instance = static_cast<gui_window*>(glfwGetWindowUserPointer(window));
+void window_context::scroll_callback(GLFWwindow* window, double dx, double dy) {
+    libgui::window* instance = static_cast<libgui::window*>(glfwGetWindowUserPointer(window));
     if (!instance) return;
 
     instance->on_scroll(dx, dy);
 }
 
-void gui_window_context::mouse_button_callback(GLFWwindow* window, int button, int action, int modifier) {
-    gui_window* instance = static_cast<gui_window*>(glfwGetWindowUserPointer(window));
+void window_context::mouse_button_callback(GLFWwindow* window, int button, int action, int modifier) {
+    libgui::window* instance = static_cast<libgui::window*>(glfwGetWindowUserPointer(window));
     if (!instance) return;
 
     instance->on_mouse_button(button, action, modifier);
 }
 
-void gui_window_context::mouse_move_callback(GLFWwindow* window, double x, double y) {
-    gui_window* instance = static_cast<gui_window*>(glfwGetWindowUserPointer(window));
+void window_context::mouse_move_callback(GLFWwindow* window, double x, double y) {
+    libgui::window* instance = static_cast<libgui::window*>(glfwGetWindowUserPointer(window));
     if (!instance) return;
 
     instance->m_mouse_pos.dx = x - instance->m_mouse_pos.x;
@@ -549,13 +549,13 @@ void gui_window_context::mouse_move_callback(GLFWwindow* window, double x, doubl
     instance->on_mouse_move(instance->m_mouse_pos.dx, instance->m_mouse_pos.dy);
 }
 
-void gui_window_context::iconify_callback(GLFWwindow* window, int iconified) {
-    gui_window* instance = static_cast<gui_window*>(glfwGetWindowUserPointer(window));
+void window_context::iconify_callback(GLFWwindow* window, int iconified) {
+    libgui::window* instance = static_cast<libgui::window*>(glfwGetWindowUserPointer(window));
     if (!instance) return;
 }
 
-void gui_window_context::drop_callback(GLFWwindow* window, int count, const char* paths[]) {
-    gui_window* instance = static_cast<gui_window*>(glfwGetWindowUserPointer(window));
+void window_context::drop_callback(GLFWwindow* window, int count, const char* paths[]) {
+    libgui::window* instance = static_cast<libgui::window*>(glfwGetWindowUserPointer(window));
     if (!instance) return;
 
     instance->on_drop(count, paths);

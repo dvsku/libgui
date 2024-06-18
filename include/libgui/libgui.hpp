@@ -3,8 +3,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 // CORE
 
-#include "libgui/gui_window.hpp"
-#include "libgui/systems/gui_sys_command.hpp"
+#include "libgui/window.hpp"
+#include "libgui/systems/sys_command.hpp"
 #include "libgui/misc/texture.hpp"
 #include "libgui/misc/version.hpp"
 #include "libgui/theme.hpp"
