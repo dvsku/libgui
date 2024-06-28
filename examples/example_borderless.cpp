@@ -115,12 +115,11 @@ protected:
 };
 
 int main() {
-    dvsku::util_log::settings log_settings;
+    libutil::log::settings log_settings;
     log_settings.log_to_file = false;
-    log_settings.level       = dvsku::util_log::level::debug;
+    log_settings.level       = libutil::log::level::debug;
 
-    dvsku::util_log::init(log_settings);
-    dvsku::util_log::create_source("console", &std::cout);
+    libutil::log::init(log_settings);
 
     libgui::window_settings settings;
     settings.width  = 1024;
