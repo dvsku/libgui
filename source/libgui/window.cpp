@@ -9,7 +9,7 @@
 #include "libgui/window.hpp"
 #include "libgui/theme.hpp"
 #include "libgui/utilities/util_debug.hpp"
-#include "libutil/util_log.hpp"
+#include "libutil/log.hpp"
 
 #ifdef LIBGUI_OPENGL2
     #include <backends/imgui_impl_opengl2.h>
