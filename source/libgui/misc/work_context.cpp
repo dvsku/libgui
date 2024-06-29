@@ -36,6 +36,15 @@ float work_context::get_subprogress() const {
     return m_subprogress;
 }
 
+void work_context::set_progress(float progress) {
+    m_progress = progress;
+    m_window.set_taskbar_progress((uint64_t)m_progress);
+}
+
+void work_context::set_subprogress(float subprogress) {
+    m_subprogress = subprogress;
+}
+
 void work_context::update_progress(float change) {
     m_progress += change;
     m_window.set_taskbar_progress((uint64_t)m_progress);

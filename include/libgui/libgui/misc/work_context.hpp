@@ -36,6 +36,9 @@ namespace libgui {
         float get_progress() const;
         float get_subprogress() const;
 
+        void set_progress(float progress);
+        void set_subprogress(float subprogress);
+
         void update_progress(float change);
         void update_subprogress(float change);
 
