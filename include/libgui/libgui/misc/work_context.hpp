@@ -30,7 +30,7 @@ namespace libgui {
         /*
             Work stopped.
         */
-        void stop_working(bool success_or_cancel);
+        void stop_working(bool success_or_cancel, bool sound = true);
 
     public:
         float get_progress() const;

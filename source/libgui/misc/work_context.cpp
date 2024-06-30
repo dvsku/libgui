@@ -18,14 +18,15 @@ void work_context::start_working() {
     m_window.set_taskbar_progress(0U);
 }
 
-void work_context::stop_working(bool success_or_cancel) {
+void work_context::stop_working(bool success_or_cancel, bool sound) {
     m_working = false;
     cancel    = false;
 
     m_window.set_taskbar_status(libgui::taskbar_status::no_progress);
     m_window.set_taskbar_progress(0U);
-
-    success_or_cancel ? libgui::sound::success() : libgui::sound::warning();
+    
+    if (sound)
+        success_or_cancel ? libgui::sound::success() : libgui::sound::warning();
 }
 
 float work_context::get_progress() const {
