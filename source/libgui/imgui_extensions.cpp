@@ -20,10 +20,10 @@ bool libgui::imgui::begin_composite(const char* id, const ImVec2& size, bool bor
                    && !ImGui::IsAnyItemHovered()
                    && !ImGui::IsPopupOpen(nullptr, ImGuiPopupFlags_AnyPopupId);
 
-    if (selected)
-        theme::push_col(ImGuiCol_ChildBg, theme::get_col(theme_col::composite_selected));
+    if (hovered)
+        theme::push_col(ImGuiCol_ChildBg, theme::get_col(theme_col::composite_hovered));
     else
-        theme::push_col(ImGuiCol_ChildBg, theme::get_col(hovered ? theme_col::composite_hovered : theme_col::composite));
+        theme::push_col(ImGuiCol_ChildBg, theme::get_col(selected ? theme_col::composite_selected : theme_col::composite));
 
     bool retval = ImGui::BeginChild(id, size, border, flags);
     theme::pop_col(1);
