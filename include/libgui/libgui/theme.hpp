@@ -16,6 +16,7 @@ namespace libgui {
     enum class theme_col {
         composite,
         composite_hovered,
+        composite_selected,
         context_menu,
         icon_button,
         icon_button_hovered,

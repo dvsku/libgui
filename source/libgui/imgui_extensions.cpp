@@ -3,7 +3,7 @@
 
 #include <libutil.hpp>
 
-bool libgui::imgui::begin_composite(const char* id, const ImVec2& size, bool border, ImGuiWindowFlags flags) {
+bool libgui::imgui::begin_composite(const char* id, const ImVec2& size, bool border, bool selected, ImGuiWindowFlags flags) {
     ImVec2 size_arg = size;
     ImVec2 pos      = ImGui::GetCursorScreenPos();
     ImVec2 pos_max  = {};
@@ -20,7 +20,11 @@ bool libgui::imgui::begin_composite(const char* id, const ImVec2& size, bool bor
                    && !ImGui::IsAnyItemHovered()
                    && !ImGui::IsPopupOpen(nullptr, ImGuiPopupFlags_AnyPopupId);
 
-    theme::push_col(ImGuiCol_ChildBg, theme::get_col(hovered ? theme_col::composite_hovered : theme_col::composite));
+    if (selected)
+        theme::push_col(ImGuiCol_ChildBg, theme::get_col(theme_col::composite_selected));
+    else
+        theme::push_col(ImGuiCol_ChildBg, theme::get_col(hovered ? theme_col::composite_hovered : theme_col::composite));
+
     bool retval = ImGui::BeginChild(id, size, border, flags);
     theme::pop_col(1);
 
