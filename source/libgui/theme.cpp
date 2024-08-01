@@ -64,7 +64,7 @@ void theme::init() {
     set_col(ImGuiCol_TableRowBg,            { 0.00f, 0.00f, 0.00f, 0.00f });
     set_col(ImGuiCol_TableRowBgAlt,         { 1.00f, 1.00f, 1.00f, 0.06f });
     set_col(ImGuiCol_TextSelectedBg,        { 0.29020f, 0.24314f, 0.61176f, 0.35f });
-    set_col(ImGuiCol_DragDropTarget,        { 1.00f, 1.00f, 0.00f, 0.90f });
+    set_col(ImGuiCol_DragDropTarget,        { 0.29020f, 0.24314f, 0.61176f, 0.9f });
     set_col(ImGuiCol_NavHighlight,          { 0.26f, 0.59f, 0.98f, 1.00f });
     set_col(ImGuiCol_NavWindowingHighlight, { 1.00f, 1.00f, 1.00f, 0.70f });
     set_col(ImGuiCol_NavWindowingDimBg,     { 0.80f, 0.80f, 0.80f, 0.20f });
