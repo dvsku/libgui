@@ -420,7 +420,7 @@ void window::prepare_system_tray() {
     system_tray->uID              = 100;
     system_tray->uFlags           = NIF_ICON | NIF_MESSAGE | NIF_TIP;
     system_tray->uCallbackMessage = WM_USER_TRAYICON;
-    system_tray->hIcon            = LoadIcon(NULL, IDI_APPLICATION);
+    system_tray->hIcon            = (HICON)GetClassLongPtr(win32_handle, GCLP_HICON);
     
     strncpy(system_tray->szTip, m_settings.title.c_str(), min(sizeof(system_tray->szTip), m_settings.title.size()));
 
