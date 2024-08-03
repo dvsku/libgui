@@ -67,9 +67,8 @@ namespace libgui {
         bool is_maximized() const;
 
     protected:
-        ptr_t m_native    = nullptr;
-        bool  m_resizable = false;
-
+        ptr_t m_native = nullptr;
+        
         window_title_bar m_title_bar{};
         mouse_pos        m_mouse_pos{};
 
@@ -124,6 +123,11 @@ namespace libgui {
             Is window iconified to system tray?
         */
         bool m_iconified_to_system_tray = false;
+
+        /*
+            Is window resizable?
+        */
+        bool m_resizable = false;
 
     private:
         window_settings m_settings;
