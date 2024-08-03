@@ -80,6 +80,7 @@ namespace libgui {
     	virtual void on_scroll(double dx, double dy);
     	virtual void on_mouse_button(int btn, int action, int modifier);
     	virtual void on_mouse_move(double dx, double dy);
+        virtual void on_iconify(bool iconified);
         virtual void on_drop(int count, const char* paths[]);
 
     protected:

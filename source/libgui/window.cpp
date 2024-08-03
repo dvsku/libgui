@@ -255,6 +255,8 @@ void window::on_mouse_button(int btn, int action, int modifier) {}
 
 void window::on_mouse_move(double dx, double dy) {}
 
+void window::on_iconify(bool iconified) {}
+
 void window::on_drop(int count, const char* paths[]) {}
 
 void window::set_borderless() {
@@ -552,6 +554,8 @@ void window_context::mouse_move_callback(GLFWwindow* window, double x, double y)
 void window_context::iconify_callback(GLFWwindow* window, int iconified) {
     libgui::window* instance = static_cast<libgui::window*>(glfwGetWindowUserPointer(window));
     if (!instance) return;
+
+    instance->on_iconify(iconified);
 }
 
 void window_context::drop_callback(GLFWwindow* window, int count, const char* paths[]) {
