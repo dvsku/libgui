@@ -145,8 +145,6 @@ window::window(const window_settings& settings) {
     if (m_settings.enable_multi_viewport)
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
-    ImGui::StyleColorsDark();
-
     ImGui_ImplGlfw_InitForOpenGL(LIBGUI_TO_NATIVE(m_native), true);
     LIBGUI_IMGUI_OPENGL_INIT();
 
