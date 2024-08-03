@@ -231,7 +231,15 @@ void window::maximize_or_restore() {
 }
 
 bool window::is_iconified() const {
-    return glfwGetWindowAttrib(LIBGUI_TO_NATIVE(m_native), GLFW_ICONIFIED) || m_iconified_to_system_tray;
+    return is_iconified_to_taskbar() || is_iconified_to_system_tray();
+}
+
+bool window::is_iconified_to_taskbar() const {
+    return glfwGetWindowAttrib(LIBGUI_TO_NATIVE(m_native), GLFW_ICONIFIED);
+}
+
+bool window::is_iconified_to_system_tray() const {
+    return m_iconified_to_system_tray;
 }
 
 bool window::is_maximized() const {
