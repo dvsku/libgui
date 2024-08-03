@@ -57,7 +57,7 @@ namespace libgui {
         // Is window iconified to taskbar or system tray?
         bool is_iconified() const;
 
-        // Is window fullscreen
+        // Is window fullscreen?
         bool is_maximized() const;
 
     protected:
