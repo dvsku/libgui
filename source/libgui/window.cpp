@@ -2,6 +2,7 @@
 #define STRICT_TYPED_ITEMIDS
 
 #include <windows.h>
+#include <shellapi.h>
 #include <shlobj.h>
 #include <stdexcept>
 #include <versionhelpers.h>
@@ -32,6 +33,7 @@
 
 #define LIBGUI_NATIVE         GLFWwindow*
 #define LIBGUI_TO_NATIVE(ptr) (LIBGUI_NATIVE)ptr
+#define WM_USER_TRAYICON      WM_USER + 1
 
 #include <glfw/glfw3.h>
 #include <glfw/glfw3native.h>
@@ -125,6 +127,9 @@ window::window(const window_settings& settings) {
     // Prepare taskbar if possible
     prepare_taskbar();
 
+    // Prepare system tray
+    prepare_system_tray();
+
 #ifndef NDEBUG
     IMGUI_CHECKVERSION();
 #endif
@@ -151,6 +156,9 @@ window::window(const window_settings& settings) {
 window::~window() {
     // Release taskbar if it exists
     release_taskbar();
+
+    // Release system tray
+    release_system_tray();
 
     glfwTerminate();
 
@@ -209,6 +217,10 @@ void window::iconify() {
     glfwIconifyWindow(LIBGUI_TO_NATIVE(m_native));
 }
 
+void window::iconify_to_system_tray() {
+    internal_iconify_to_system_tray();
+}
+
 void window::maximize_or_restore() {
     if (is_maximized()) {
         glfwRestoreWindow(LIBGUI_TO_NATIVE(m_native));
@@ -219,7 +231,7 @@ void window::maximize_or_restore() {
 }
 
 bool window::is_iconified() const {
-    return glfwGetWindowAttrib(LIBGUI_TO_NATIVE(m_native), GLFW_ICONIFIED);
+    return glfwGetWindowAttrib(LIBGUI_TO_NATIVE(m_native), GLFW_ICONIFIED) || m_iconified_to_system_tray;
 }
 
 bool window::is_maximized() const {
@@ -390,6 +402,70 @@ void window::release_taskbar() {
     m_taskbar = nullptr;
 }
 
+void window::prepare_system_tray() {
+    if (m_system_tray) return;
+
+    auto win32_handle = glfwGetWin32Window(LIBGUI_TO_NATIVE(m_native));
+    if (!win32_handle) return;
+
+    NOTIFYICONDATA* system_tray = new NOTIFYICONDATA();
+    system_tray->cbSize           = sizeof(NOTIFYICONDATA);
+    system_tray->hWnd             = win32_handle;
+    system_tray->uID              = 100;
+    system_tray->uFlags           = NIF_ICON | NIF_MESSAGE | NIF_TIP;
+    system_tray->uCallbackMessage = WM_USER_TRAYICON;
+    system_tray->hIcon            = LoadIcon(NULL, IDI_APPLICATION);
+    
+    strncpy(system_tray->szTip, m_settings.title.c_str(), min(sizeof(system_tray->szTip), m_settings.title.size()));
+
+    m_system_tray = (ptr_t)system_tray;
+}
+
+void window::release_system_tray() {
+    if (!m_system_tray) return;
+
+    internal_show_system_tray_icon();
+
+    NOTIFYICONDATA* system_tray = (NOTIFYICONDATA*)m_system_tray;
+    delete system_tray;
+    m_system_tray = nullptr;
+}
+
+void window::internal_iconify_to_system_tray() {
+    auto win32_handle = glfwGetWin32Window(LIBGUI_TO_NATIVE(m_native));
+    if (!win32_handle) return;
+
+    internal_show_system_tray_icon();
+    ShowWindow(win32_handle, SW_HIDE);
+
+    m_iconified_to_system_tray = true;
+    window_context::iconify_callback(LIBGUI_TO_NATIVE(m_native), GLFW_TRUE);
+}
+
+void window::internal_restore_from_system_tray() {
+    auto win32_handle = glfwGetWin32Window(LIBGUI_TO_NATIVE(m_native));
+    if (!win32_handle) return;
+
+    internal_hide_system_tray_icon();
+    ShowWindow(win32_handle, SW_RESTORE);
+    SetForegroundWindow(win32_handle);
+
+    m_iconified_to_system_tray = false;
+    window_context::iconify_callback(LIBGUI_TO_NATIVE(m_native), GLFW_FALSE);
+}
+
+void window::internal_show_system_tray_icon() {
+    if (!m_system_tray) return;
+
+    Shell_NotifyIcon(NIM_ADD, (NOTIFYICONDATA*)m_system_tray);
+}
+
+void window::internal_hide_system_tray_icon() {
+    if (!m_system_tray) return;
+
+    Shell_NotifyIcon(NIM_DELETE, (NOTIFYICONDATA*)m_system_tray);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // INTERNAL
 
@@ -506,6 +582,13 @@ LRESULT window_context::wndproc_callback(HWND handle, UINT msg, WPARAM wparam, L
                 default: break;
             }
 
+            break;
+        }
+        case WM_USER_TRAYICON:
+        {
+            if (lparam == WM_LBUTTONDOWN) {
+                wnd->internal_restore_from_system_tray();
+            }
             break;
         }
 

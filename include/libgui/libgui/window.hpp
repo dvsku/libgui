@@ -48,10 +48,13 @@ namespace libgui {
         // Iconify the window to taskbar
         void iconify();
 
+        // Iconify the window to system tray
+        void iconify_to_system_tray();
+
         // Fullscreen or restore original size
         void maximize_or_restore();
 
-        // Is window iconified to taskbar
+        // Is window iconified to taskbar or system tray?
         bool is_iconified() const;
 
         // Is window fullscreen
@@ -106,6 +109,16 @@ namespace libgui {
         */
         ptr_t m_taskbar = nullptr;
 
+        /*
+            Underlying system impl of the system tray element for this window.
+        */
+        ptr_t m_system_tray = nullptr;
+
+        /*
+            Is window iconified to system tray?
+        */
+        bool m_iconified_to_system_tray = false;
+
     private:
         window_settings m_settings;
 
@@ -117,5 +130,13 @@ namespace libgui {
 
         void prepare_taskbar();
         void release_taskbar();
+
+        void prepare_system_tray();
+        void release_system_tray();
+
+        void internal_iconify_to_system_tray();
+        void internal_restore_from_system_tray();
+        void internal_show_system_tray_icon();
+        void internal_hide_system_tray_icon();
     };
 }
