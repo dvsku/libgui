@@ -453,7 +453,7 @@ void window::internal_restore_from_system_tray() {
     if (!win32_handle) return;
 
     internal_hide_system_tray_icon();
-    ShowWindow(win32_handle, SW_RESTORE);
+    ShowWindow(win32_handle, SW_SHOW);
     SetForegroundWindow(win32_handle);
 
     m_iconified_to_system_tray = false;
