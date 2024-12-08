@@ -1,4 +1,3 @@
-#define GLFW_EXPOSE_NATIVE_WIN32
 #define STRICT_TYPED_ITEMIDS
 
 #include <windows.h>
@@ -8,12 +7,14 @@
 #include <versionhelpers.h>
 
 #include "libgui/window.hpp"
+#include "libgui/imgui.hpp"
 #include "libgui/theme.hpp"
 #include "libgui/utilities/util_debug.hpp"
 #include "libutil/log.hpp"
 
 #ifdef LIBGUI_OPENGL2
     #include <backends/imgui_impl_opengl2.h>
+    #include <backends/imgui_impl_glfw.h>
 
     #define LIBGUI_IMGUI_OPENGL_INIT      ImGui_ImplOpenGL2_Init
     #define LIBGUI_IMGUI_OPENGL_SHUTDOWN  ImGui_ImplOpenGL2_Shutdown
@@ -22,6 +23,7 @@
 #elif  LIBGUI_OPENGL3
     #include <glad.h>
     #include <backends/imgui_impl_opengl3.h>
+    #include <backends/imgui_impl_glfw.h>
 
     #define LIBGUI_IMGUI_OPENGL_INIT      ImGui_ImplOpenGL3_Init
     #define LIBGUI_IMGUI_OPENGL_SHUTDOWN  ImGui_ImplOpenGL3_Shutdown
@@ -35,11 +37,9 @@
 #define LIBGUI_TO_NATIVE(ptr) (LIBGUI_NATIVE)ptr
 #define WM_USER_TRAYICON      WM_USER + 1
 
+#define GLFW_EXPOSE_NATIVE_WIN32
 #include <glfw/glfw3.h>
 #include <glfw/glfw3native.h>
-#include <imgui.h>
-#include <imgui_internal.h>
-#include <backends/imgui_impl_glfw.h>
 
 using namespace libgui;
 
@@ -77,52 +77,51 @@ static constexpr auto get_imgui_version() {
 ///////////////////////////////////////////////////////////////////////////////
 // PUBLIC
 
-window::window(const window_settings& settings) {
-    glfwSetErrorCallback(NULL);
-
-    if (!glfwInit())
-    	throw std::runtime_error("Failed to init glfw.");
-
-    m_settings = settings;
-
-    m_native = (ptr_t)glfwCreateWindow(settings.width, settings.height,
-        settings.title.c_str(), NULL, NULL);
-
-    if (!m_native)
-    	throw std::runtime_error("Failed to create window.");
-
-    LIBGUI_NATIVE native = LIBGUI_TO_NATIVE(m_native);
-
-    // Get win32 handle
-    auto win32_handle = glfwGetWin32Window(native);
-    if (!win32_handle)
+window::window(const window_settings& settings)
+    : m_settings(settings)
+{
+    m_native = glfwCreateWindow(settings.width, settings.height, settings.title.c_str(), NULL, NULL);
+    if (!m_native) {
         throw std::runtime_error("Failed to create window.");
+    }
 
-    // Set this as native handle userdata
-    SetWindowLongPtr(win32_handle, GWLP_USERDATA, (intptr_t)this);
+    auto glfw_handle  = (GLFWwindow*)m_native;
+    auto win32_handle = glfwGetWin32Window(glfw_handle);
 
-    glfwMakeContextCurrent(native);
+    if (!win32_handle) {
+        throw std::runtime_error("Failed to create window.");
+    }
+
+
+    glfwMakeContextCurrent(glfw_handle);
     glfwSwapInterval(1);
 
-    glfwSetWindowUserPointer(native, this);
+    /*
+        Set this as userdata 
+    */
 
-    glfwSetWindowSizeCallback(native, window_context::resize_callback);
-    glfwSetScrollCallback(native, window_context::scroll_callback);
-    glfwSetMouseButtonCallback(native, window_context::mouse_button_callback);
-    glfwSetCursorPosCallback(native, window_context::mouse_move_callback);
-    glfwSetWindowIconifyCallback(native, window_context::iconify_callback);
-    glfwSetDropCallback(native, window_context::drop_callback);
+    SetWindowLongPtr(win32_handle, GWLP_USERDATA, (intptr_t)this);
+    glfwSetWindowUserPointer(glfw_handle, this);
 
-    glfwSetWindowMonitor(native, NULL,
+    /*
+        Set callbacks
+    */
+
+    glfwSetWindowSizeCallback(glfw_handle, window_context::resize_callback);
+    glfwSetScrollCallback(glfw_handle, window_context::scroll_callback);
+    glfwSetMouseButtonCallback(glfw_handle, window_context::mouse_button_callback);
+    glfwSetCursorPosCallback(glfw_handle, window_context::mouse_move_callback);
+    glfwSetWindowIconifyCallback(glfw_handle, window_context::iconify_callback);
+    glfwSetDropCallback(glfw_handle, window_context::drop_callback);
+
+    /*
+        Center window on screen
+    */
+
+    glfwSetWindowMonitor(glfw_handle, NULL,
         (GetSystemMetrics(SM_CXSCREEN) / 2) - (settings.width  / 2),
         (GetSystemMetrics(SM_CYSCREEN) / 2) - (settings.height / 2),
          settings.width, settings.height, GLFW_DONT_CARE);
-
-#ifdef LIBGUI_OPENGL3
-    // Init glad
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    	throw std::runtime_error("Failed to init glad.");
-#endif
 
     // Prepare taskbar if possible
     prepare_taskbar();
@@ -157,8 +156,6 @@ window::~window() {
 
     // Release system tray
     release_system_tray();
-
-    glfwTerminate();
 
     LIBGUI_IMGUI_OPENGL_SHUTDOWN();
     ImGui_ImplGlfw_Shutdown();

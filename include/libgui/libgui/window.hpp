@@ -12,7 +12,7 @@ namespace libgui {
     class window {
     public:
         using handle_t = void*;
-        using ptr_t    = intptr_t*;
+        using ptr_t    = void*;
 
         struct mouse_pos {
             double x  = 0.0;

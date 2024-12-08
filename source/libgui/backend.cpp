@@ -1,0 +1,64 @@
+#include "libgui/backend.hpp"
+
+#include <windows.h>
+
+/*
+    Use GLAD for OpenGL3 or fallback to OpenGL2
+*/
+#ifdef LIBGUI_OPENGL3
+    #include <glad.h>
+#endif
+
+#include <glfw/glfw3.h>
+#include <stdexcept>
+
+using namespace libgui;
+
+backend::backend() {
+    initialize();
+}
+
+backend::~backend() {
+    teardown();
+}
+
+void backend::initialize() {
+    if (m_is_initialized) return;
+
+    glfwSetErrorCallback(NULL);
+
+    if (!glfwInit()) {
+        MessageBox(0, "Failed to initialize GLFW.", "Failure", MB_OK | MB_ICONERROR);
+        throw std::runtime_error("Failed to initialize GLFW.");
+    }
+        
+#ifdef LIBGUI_OPENGL3
+    glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+
+    auto temp = glfwCreateWindow(1, 1, "", NULL, NULL);
+    if (!temp) {
+        MessageBox(0, "Failed to initialize GLAD.", "Failure", MB_OK | MB_ICONERROR);
+        throw std::runtime_error("Failed to initialize GLAD.");
+    }
+
+    glfwMakeContextCurrent(temp);
+
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        MessageBox(0, "Failed to initialize GLAD.", "Failure", MB_OK | MB_ICONERROR);
+        throw std::runtime_error("Failed to initialize GLAD.");
+    }
+
+    glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
+    glfwDestroyWindow(temp);
+#endif
+
+    m_is_initialized = true;
+}
+
+void backend::teardown() {
+    if (!m_is_initialized) return;
+
+    glfwTerminate();
+
+    m_is_initialized = false;
+}
