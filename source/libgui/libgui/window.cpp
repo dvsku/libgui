@@ -7,6 +7,7 @@
 #include <versionhelpers.h>
 
 #include "libgui/window.hpp"
+#include "libgui/global.hpp"
 #include "libgui/imgui.hpp"
 #include "libgui/theme.hpp"
 #include "libgui/utilities/util_debug.hpp"
@@ -80,6 +81,8 @@ static constexpr auto get_imgui_version() {
 window::window(const window_settings& settings)
     : m_settings(settings)
 {
+    global::backend.initialize();
+
     m_native = glfwCreateWindow(settings.width, settings.height, settings.title.c_str(), NULL, NULL);
     if (!m_native) {
         throw std::runtime_error("Failed to create window.");
