@@ -1,55 +1,53 @@
-﻿FILE(GLOB_RECURSE LIBGUI_SOURCES_GLFW CONFIGURE_DEPENDS 
-    "glfw/*.c" "glfw/*.cpp"
+﻿FILE(GLOB_RECURSE LIBGUI_LIB_SOURCE_GLFW CONFIGURE_DEPENDS 
+    "${LIBGUI_LIBRARIES}/glfw/*.c"
+    "${LIBGUI_LIBRARIES}/glfw/*.cpp"
 )
 
-FILE(GLOB_RECURSE LIBGUI_SOURCES_GLAD CONFIGURE_DEPENDS 
-    "glad/*.c" "glad/*.cpp"
+FILE(GLOB_RECURSE LIBGUI_LIB_SOURCE_GLAD CONFIGURE_DEPENDS 
+    "${LIBGUI_LIBRARIES}/glad/*.c"
+    "${LIBGUI_LIBRARIES}/glad/*.cpp"
 )
 
-SET(LIBGUI_SOURCES_IMGUI_OPENGL2
-    "imgui/imgui.cpp"
-    "imgui/imgui_demo.cpp"
-    "imgui/imgui_draw.cpp"
-    "imgui/imgui_tables.cpp"
-    "imgui/imgui_widgets.cpp"
-    "imgui/misc/cpp/imgui_stdlib.cpp"
-    "imgui/backends/imgui_impl_glfw.cpp"
-    "imgui/backends/imgui_impl_opengl2.cpp"
+SET(LIBGUI_LIB_SOURCE_IMGUI_OPENGL2
+    "${LIBGUI_LIBRARIES}/imgui/imgui/imgui.cpp"
+    "${LIBGUI_LIBRARIES}/imgui/imgui/imgui_demo.cpp"
+    "${LIBGUI_LIBRARIES}/imgui/imgui/imgui_draw.cpp"
+    "${LIBGUI_LIBRARIES}/imgui/imgui/imgui_tables.cpp"
+    "${LIBGUI_LIBRARIES}/imgui/imgui/imgui_widgets.cpp"
+    "${LIBGUI_LIBRARIES}/imgui/imgui/misc/cpp/imgui_stdlib.cpp"
+    "${LIBGUI_LIBRARIES}/imgui/imgui/backends/imgui_impl_glfw.cpp"
+    "${LIBGUI_LIBRARIES}/imgui/imgui/backends/imgui_impl_opengl2.cpp"
 )
 
-SET(LIBGUI_SOURCES_IMGUI_OPENGL3
-    "imgui/imgui.cpp"
-    "imgui/imgui_demo.cpp"
-    "imgui/imgui_draw.cpp"
-    "imgui/imgui_tables.cpp"
-    "imgui/imgui_widgets.cpp"
-    "imgui/misc/cpp/imgui_stdlib.cpp"
-    "imgui/backends/imgui_impl_glfw.cpp"
-    "imgui/backends/imgui_impl_opengl3.cpp"
+SET(LIBGUI_LIB_SOURCE_IMGUI_OPENGL3
+    "${LIBGUI_LIBRARIES}/imgui/imgui/imgui.cpp"
+    "${LIBGUI_LIBRARIES}/imgui/imgui/imgui_demo.cpp"
+    "${LIBGUI_LIBRARIES}/imgui/imgui/imgui_draw.cpp"
+    "${LIBGUI_LIBRARIES}/imgui/imgui/imgui_tables.cpp"
+    "${LIBGUI_LIBRARIES}/imgui/imgui/imgui_widgets.cpp"
+    "${LIBGUI_LIBRARIES}/imgui/imgui/misc/cpp/imgui_stdlib.cpp"
+    "${LIBGUI_LIBRARIES}/imgui/imgui/backends/imgui_impl_glfw.cpp"
+    "${LIBGUI_LIBRARIES}/imgui/imgui/backends/imgui_impl_opengl3.cpp"
 )
 
-FILE(GLOB_RECURSE LIBGUI_SOURCES CONFIGURE_DEPENDS 
-    "libgui/*.c" "libgui/*.cpp"
-)
-
-FILE(GLOB_RECURSE LIBGUI_HEADERS CONFIGURE_DEPENDS 
-    "${LIBGUI_INCLUDES}/*.h" "${LIBGUI_INCLUDES}/*.hpp"
+FILE(GLOB_RECURSE LIBGUI_SOURCE CONFIGURE_DEPENDS 
+    "libgui/*.c"
+    "libgui/*.cpp"
 )
 
 IF(LIBGUI_BUILD_OPENGL2)
     ADD_LIBRARY(libgui_opengl2 STATIC
-        ${LIBGUI_SOURCES_GLFW}
-        ${LIBGUI_SOURCES_IMGUI_OPENGL2}
-        ${LIBGUI_SOURCES}
-        ${LIBGUI_HEADERS}
+        ${LIBGUI_LIB_SOURCE_GLFW}
+        ${LIBGUI_LIB_SOURCE_IMGUI_OPENGL2}
+        ${LIBGUI_SOURCE}
     )
 
-    TARGET_INCLUDE_DIRECTORIES(libgui_opengl2 PUBLIC  "${LIBGUI_INCLUDES}")
-    TARGET_INCLUDE_DIRECTORIES(libgui_opengl2 PUBLIC  "${LIBGUI_INCLUDES}/libgui")
-    TARGET_INCLUDE_DIRECTORIES(libgui_opengl2 PRIVATE "${LIBGUI_INCLUDES}/imgui")
-    TARGET_INCLUDE_DIRECTORIES(libgui_opengl2 PRIVATE "${LIBGUI_INCLUDES}/imgui/backends")
-    TARGET_INCLUDE_DIRECTORIES(libgui_opengl2 PRIVATE "${LIBGUI_INCLUDES}/imgui/misc/cpp")
-    TARGET_INCLUDE_DIRECTORIES(libgui_opengl2 PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/libraries")
+    TARGET_INCLUDE_DIRECTORIES(libgui_opengl2 PUBLIC  "${CMAKE_CURRENT_SOURCE_DIR}/libgui")
+    TARGET_INCLUDE_DIRECTORIES(libgui_opengl2 PUBLIC  "${LIBGUI_LIBRARIES}")
+    TARGET_INCLUDE_DIRECTORIES(libgui_opengl2 PRIVATE "${LIBGUI_LIBRARIES}/glfw")
+    TARGET_INCLUDE_DIRECTORIES(libgui_opengl2 PUBLIC  "${LIBGUI_LIBRARIES}/imgui")
+    TARGET_INCLUDE_DIRECTORIES(libgui_opengl2 PRIVATE "${LIBGUI_LIBRARIES}/stb")
+    TARGET_INCLUDE_DIRECTORIES(libgui_opengl2 PRIVATE "${LIBGUI_LIBRARIES}/pfd")
 
     IF(MSVC)
         TARGET_LINK_LIBRARIES(libgui_opengl2 PUBLIC libutil)
@@ -59,44 +57,39 @@ IF(LIBGUI_BUILD_OPENGL2)
         TARGET_COMPILE_DEFINITIONS(libgui_opengl2 PUBLIC  -D_GLFW_WIN32)
         TARGET_COMPILE_DEFINITIONS(libgui_opengl2 PRIVATE -D_CRT_SECURE_NO_WARNINGS)
         TARGET_COMPILE_DEFINITIONS(libgui_opengl2 PUBLIC  -DIMGUI_DEFINE_MATH_OPERATORS)
+        TARGET_COMPILE_DEFINITIONS(libgui_opengl2 PUBLIC  -DSTB_IMAGE_IMPLEMENTATION)
         TARGET_COMPILE_DEFINITIONS(libgui_opengl2 PUBLIC  -DLIBGUI_OPENGL2)
     ENDIF()
 ENDIF()
 
 IF(LIBGUI_BUILD_OPENGL3)
-    ADD_LIBRARY(libglad STATIC 
-        ${LIBGUI_SOURCES_GLAD}
-    )
-
     ADD_LIBRARY(libgui_opengl3 STATIC
-        ${LIBGUI_SOURCES_GLFW}
-        ${LIBGUI_SOURCES_IMGUI_OPENGL3}
-        ${LIBGUI_SOURCES}
-        ${LIBGUI_HEADERS}
+        ${LIBGUI_LIB_SOURCE_GLAD}
+        ${LIBGUI_LIB_SOURCE_GLFW}
+        ${LIBGUI_LIB_SOURCE_IMGUI_OPENGL3}
+        ${LIBGUI_SOURCE}
     )
 
-    TARGET_INCLUDE_DIRECTORIES(libglad PUBLIC "${LIBGUI_INCLUDES}")
-    TARGET_INCLUDE_DIRECTORIES(libglad PUBLIC "${LIBGUI_INCLUDES}/glad")
-
-    TARGET_INCLUDE_DIRECTORIES(libgui_opengl3 PUBLIC  "${LIBGUI_INCLUDES}")
-    TARGET_INCLUDE_DIRECTORIES(libgui_opengl3 PUBLIC  "${LIBGUI_INCLUDES}/libgui")
-    TARGET_INCLUDE_DIRECTORIES(libgui_opengl3 PRIVATE "${LIBGUI_INCLUDES}/imgui")
-    TARGET_INCLUDE_DIRECTORIES(libgui_opengl3 PRIVATE "${LIBGUI_INCLUDES}/imgui/backends")
-    TARGET_INCLUDE_DIRECTORIES(libgui_opengl3 PRIVATE "${LIBGUI_INCLUDES}/imgui/misc/cpp")
-    TARGET_INCLUDE_DIRECTORIES(libgui_opengl3 PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/libraries")
+    TARGET_INCLUDE_DIRECTORIES(libgui_opengl3 PUBLIC  "${CMAKE_CURRENT_SOURCE_DIR}/libgui")
+    TARGET_INCLUDE_DIRECTORIES(libgui_opengl3 PUBLIC  "${LIBGUI_LIBRARIES}")
+    TARGET_INCLUDE_DIRECTORIES(libgui_opengl3 PRIVATE "${LIBGUI_LIBRARIES}/glfw")
+    TARGET_INCLUDE_DIRECTORIES(libgui_opengl3 PRIVATE "${LIBGUI_LIBRARIES}/glad")
+    TARGET_INCLUDE_DIRECTORIES(libgui_opengl3 PUBLIC  "${LIBGUI_LIBRARIES}/imgui")   
+    TARGET_INCLUDE_DIRECTORIES(libgui_opengl3 PRIVATE "${LIBGUI_LIBRARIES}/stb")
+    TARGET_INCLUDE_DIRECTORIES(libgui_opengl3 PRIVATE "${LIBGUI_LIBRARIES}/pfd")
+    TARGET_INCLUDE_DIRECTORIES(libgui_opengl3 PRIVATE "${LIBGUI_LIBRARIES}/khr")
 
     IF(MSVC)
         TARGET_LINK_LIBRARIES(libgui_opengl3 PUBLIC libutil)
-        TARGET_LINK_LIBRARIES(libgui_opengl3 PUBLIC libglad)
         TARGET_LINK_LIBRARIES(libgui_opengl3 PUBLIC "winmm.lib")
-
-        TARGET_COMPILE_DEFINITIONS(libglad PUBLIC -DGLAD_GLAPI_EXPORT)
-        TARGET_COMPILE_DEFINITIONS(libglad PUBLIC -DGLAD_GLAPI_EXPORT_BUILD)
 
         TARGET_COMPILE_DEFINITIONS(libgui_opengl3 PUBLIC  -D_GLFW_WIN32)
         TARGET_COMPILE_DEFINITIONS(libgui_opengl3 PRIVATE -D_CRT_SECURE_NO_WARNINGS)
         TARGET_COMPILE_DEFINITIONS(libgui_opengl3 PUBLIC  -DIMGUI_IMPL_OPENGL_LOADER_CUSTOM)
         TARGET_COMPILE_DEFINITIONS(libgui_opengl3 PUBLIC  -DIMGUI_DEFINE_MATH_OPERATORS)
+        TARGET_COMPILE_DEFINITIONS(libgui_opengl3 PUBLIC  -DGLAD_GLAPI_EXPORT)
+        TARGET_COMPILE_DEFINITIONS(libgui_opengl3 PUBLIC  -DGLAD_GLAPI_EXPORT_BUILD)
+        TARGET_COMPILE_DEFINITIONS(libgui_opengl3 PUBLIC  -DSTB_IMAGE_IMPLEMENTATION)
         TARGET_COMPILE_DEFINITIONS(libgui_opengl3 PUBLIC  -DLIBGUI_OPENGL3)
     ENDIF()
 ENDIF()
