@@ -13,7 +13,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // UTILITIES
 
-#include "libgui/utilities/util_debug.hpp"
 #include "libgui/utilities/util_dialog.hpp"
 #include "libgui/utilities/util_sound.hpp"
 
@@ -23,3 +22,8 @@
 // FONTS
 
 #include "libgui/fonts/font.hpp"
+
+///////////////////////////////////////////////////////////////////////////////
+// DEBUG
+
+#include "libgui/debug/debug.hpp"

@@ -47,6 +47,8 @@ void backend::initialize() {
         throw std::runtime_error("Failed to initialize GLAD.");
     }
 
+    m_version = (char*)glGetString(GL_VERSION);
+
     glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
     glfwDestroyWindow(temp);
 #endif
@@ -60,4 +62,16 @@ void backend::teardown() {
     glfwTerminate();
 
     m_is_initialized = false;
+}
+
+const char* backend::get_type() {
+#ifdef LIBGUI_OPENGL2
+    return "OpenGL2";
+#else
+    return "OpenGL3";
+#endif
+}
+
+const char* backend::get_version() {
+    return m_version.c_str();
 }
