@@ -10,7 +10,6 @@
 #include "libgui/global.hpp"
 #include "libgui/imgui.hpp"
 #include "libgui/theme.hpp"
-#include "libgui/utilities/util_debug.hpp"
 #include "libutil/log.hpp"
 
 #ifdef LIBGUI_OPENGL2
@@ -61,20 +60,6 @@ namespace libgui {
     };
 }
 
-static constexpr auto get_imgui_version() {
-    auto ver = std::string(ImGui::GetVersion());
-
-#ifdef IMGUI_HAS_DOCK
-    ver += " docking";
-#endif
-
-#ifdef IMGUI_HAS_VIEWPORT
-    ver += " multi-viewport";
-#endif
-
-    return ver;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 // PUBLIC
 
@@ -94,7 +79,6 @@ window::window(const window_settings& settings)
     if (!win32_handle) {
         throw std::runtime_error("Failed to create window.");
     }
-
 
     glfwMakeContextCurrent(glfw_handle);
     glfwSwapInterval(1);
@@ -194,13 +178,6 @@ void window::set_taskbar_progress(uint64_t progress) {
 }
 
 void window::show() {
-#ifndef NDEBUG
-    DV_LOG_DEBG("", "OpenGL backend:  {}", libgui::debug::get_backend_type());
-    DV_LOG_DEBG("", "OpenGL version:  {}", (char*)glGetString(GL_VERSION));
-    DV_LOG_DEBG("", "OpenGL renderer: {}", (char*)glGetString(GL_RENDERER));
-    DV_LOG_DEBG("", "ImGUI version:   {}", get_imgui_version());
-#endif
-
     // Cancel showing if prepare failed
     if (!prepare()) return;
 
