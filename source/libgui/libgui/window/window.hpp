@@ -41,6 +41,8 @@ namespace libgui {
         void event_loop();
 
         // Close the window
+        void event_loop_stop();
+
         template<typename T>
         requires ev::is_event<T, ev::window_event> || ev::is_event<T, ev::user_event>
         event_callback_handle_t event_attach(std::function<void(const T&)> callback)

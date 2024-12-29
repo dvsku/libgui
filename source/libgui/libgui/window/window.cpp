@@ -200,9 +200,15 @@ void window::event_loop() {
     teardown();
 }
 
-void window::close() {
-    if (!m_context) return;
+void window::event_loop_stop() {
+    if (!m_context)
+        return;
+    
     m_context->request_close();
+}
+
+void window::close() {
+    m_event_system.enqueue<libgui::ev::ev_close>({});
 }
 
 void window::minimize_to_tb() {
