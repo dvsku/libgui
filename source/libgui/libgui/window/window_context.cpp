@@ -1,4 +1,6 @@
 #include "libgui/window/window_context.hpp"
+#include "libgui/global.hpp"
+#include "libgui/exceptions/libgui_exception.hpp"
 
 #include <stdexcept>
 #include <versionhelpers.h>
@@ -18,8 +20,27 @@ static std::string internal_get_glfw_failure();
 ///////////////////////////////////////////////////////////////////////////////
 // PUBLIC
 
-window_context::window_context(window* window, GLFWwindow* handle)
-    : m_wnd(window), m_glfw_handle(handle) {}
+window_context::window_context(window* window, const window_settings& settings)
+    : m_wnd(window), m_settings(settings)
+{
+    global::backend.initialize();
+
+    m_glfw_handle = glfwCreateWindow(settings.width, settings.height, settings.title.c_str(), NULL, NULL);
+    if (!m_glfw_handle) {
+        LIBGUI_EXCEPTION_THROW("Failed to create window. | {}", internal_get_glfw_failure());
+    }
+
+    auto win32_handle = get_win32_handle();
+    if (!win32_handle) {
+        LIBGUI_EXCEPTION_THROW("Failed to create window.");
+    }
+
+    glfwMakeContextCurrent(m_glfw_handle);
+    glfwSwapInterval(1);
+
+    SetWindowLongPtr(win32_handle, GWLP_USERDATA, (intptr_t)this);
+    glfwSetWindowUserPointer(m_glfw_handle, this);
+}
 
 window_context::~window_context() {
     teardown();
@@ -64,6 +85,7 @@ bool window_context::initialize() {
     /*
         Initialize taskbar
     */
+    internal_initialize_event();
 
     internal_initialize_tb();
 
@@ -72,6 +94,26 @@ bool window_context::initialize() {
     */
 
     internal_initialize_st();
+
+    // Apply startup settings
+
+    if (m_settings.center_on_startup) {
+        glfwSetWindowMonitor(m_glfw_handle, NULL,
+            (GetSystemMetrics(SM_CXSCREEN) / 2) - (m_settings.width / 2),
+            (GetSystemMetrics(SM_CYSCREEN) / 2) - (m_settings.height / 2),
+            m_settings.width, m_settings.height, GLFW_DONT_CARE);
+    }
+
+    if (m_settings.maximize_on_startup) {
+        set_maximized(true);
+    }
+
+    if (m_settings.minimized_to_st_on_startup) {
+        set_minimize_to_st(true);
+    }
+
+    // Apply standard settings
+    set_settings(m_settings);
 
     return true;
 }

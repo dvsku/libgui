@@ -19,7 +19,7 @@ namespace libgui::internals {
     class window_context {
     public:
         window_context() = delete;
-        window_context(window* window, GLFWwindow* handle);
+        window_context(window* window, const window_settings& settings);
         ~window_context();
 
     public:

@@ -1,6 +1,6 @@
 #include "libgui/window/window_context.hpp"
 #include "libgui/window/window.hpp"
-#include "libgui/global.hpp"
+#include "libgui/exceptions/libgui_exception.hpp"
 #include "libgui/theme.hpp"
 #include "libutil/log.hpp"
 
@@ -32,78 +32,20 @@ using namespace libgui;
 // PUBLIC
 
 window::window(const window_settings& settings) {
-    global::backend.initialize();
-
-    auto glfw_handle = glfwCreateWindow(settings.width, settings.height, settings.title.c_str(), NULL, NULL);
-    if (!glfw_handle) {
-        throw std::runtime_error("Failed to create window.");
-    }
-
-    auto win32_handle = glfwGetWin32Window(glfw_handle);
-    if (!win32_handle) {
-        throw std::runtime_error("Failed to create window.");
-    }
-
-    glfwMakeContextCurrent(glfw_handle);
-    glfwSwapInterval(1);
-
-    /*
-        Set this as userdata
-    */
-
-    SetWindowLongPtr(win32_handle, GWLP_USERDATA, (intptr_t)this);
-    glfwSetWindowUserPointer(glfw_handle, this);
-    m_context = std::make_unique<internals::window_context>(this, glfw_handle);
+    // Create context
+    m_context = std::make_unique<internals::window_context>(this, settings);
     if (!m_context) {
-        throw std::runtime_error("Failed to create context.");
+        LIBGUI_EXCEPTION_THROW("Failed to create context.");
     }
 
-    /*
-        Create and initialize context
-    */
-
-
+    // Initialize context
     if (!m_context->initialize()) {
-        throw std::runtime_error("Failed to initialize context.");
-    }
-    
-    /*
-        Save settings
-    */
-
-    set_settings(settings);
-
-    /*
-        Apply startup settings
-    */
-
-    if (settings.center_on_startup) {
-        glfwSetWindowMonitor(glfw_handle, NULL,
-            (GetSystemMetrics(SM_CXSCREEN) / 2) - (settings.width  / 2),
-            (GetSystemMetrics(SM_CYSCREEN) / 2) - (settings.height / 2),
-            settings.width, settings.height, GLFW_DONT_CARE);
+        LIBGUI_EXCEPTION_THROW("Failed to initialize context.");
     }
 
-    if (settings.maximize_on_startup) {
-        maximize();
-    }
-
-    if (settings.minimized_to_st_on_startup) {
-        minimize_to_st();
-    }
-
-    /*
-        Apply standard settings
-    */
-
-    set_settings(settings);
-    
-    /*
-        Initialize ImGUI
-    */
-
+    // Initialize ImGUI
     if (!internal_initialize_imgui()) {
-        throw std::runtime_error("Failed to initialize ImGUI.");
+        LIBGUI_EXCEPTION_THROW("Failed to initialize ImGUI.");
     }
 }
 
