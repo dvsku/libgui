@@ -39,6 +39,13 @@ namespace libgui::internals {
         void set_settings(const window_settings& settings);
 
     public:
+        // Poll for events.
+        void event_poll();
+
+        // Wait for events.
+        void event_wait();
+
+    public:
         // Request for the window to be closed
         void request_close();
 

@@ -94,6 +94,17 @@ void window_context::set_settings(const window_settings& settings) {
 
 }
 
+void window_context::event_poll() {
+    if (!m_wnd) return;
+
+    glfwPollEvents();
+    m_wnd->m_event_system.process();
+}
+
+void window_context::event_wait() {
+    glfwWaitEvents();
+}
+
 void window_context::request_close() {
     if (!m_glfw_handle)
         return;

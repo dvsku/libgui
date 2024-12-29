@@ -143,11 +143,11 @@ void window::event_loop() {
         */
         
         if (is_minimized()) {
-            glfwWaitEvents();
+            m_context->event_wait();
             continue;
         }
 
-        glfwPollEvents();
+        m_context->event_poll();
 
         /*
             Before ImGUI processing/rendering
