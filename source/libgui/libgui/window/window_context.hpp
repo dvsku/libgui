@@ -10,7 +10,8 @@
 #include "libgui/defines/backend.hpp"
 #include "libgui/defines/imgui.hpp"
 #include "libgui/defines/windowing.hpp"
-#include "libgui/window/window_taskbar.hpp"
+#include "libgui/window/window.hpp"
+#include "libgui/event/events_internal.hpp"
 
 struct GLFWwindow;
 
@@ -109,6 +110,31 @@ namespace libgui::internals {
 
         // Is window resizable?
         bool m_resizable = false;
+
+    private:
+        template<typename T>
+        requires libgui::ev::is_event<T, libgui::ev::event>
+        void internal_enqueue_event(T&& event)
+        {
+            if (!m_wnd) return;
+            m_wnd->m_event_system.enqueue<T>(std::move(event));
+        }
+
+        template<typename T>
+        requires libgui::ev::is_event<T, libgui::ev::event>
+        void internal_dispatch_event(T&& event)
+        {
+            if (!m_wnd) return;
+            m_wnd->m_event_system.dispatch<T>(std::move(event));
+        }
+
+        template<typename T>
+        requires libgui::ev::is_event<T, libgui::ev::event>
+        window::event_callback_handle_t internal_event_attach(std::function<void(const T&)> callback)
+        {
+            if (!m_wnd) return {};
+            return m_wnd->m_event_system.append_callback<T>(callback);
+        }
 
     private:
         void internal_initialize_st();
