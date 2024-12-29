@@ -77,18 +77,18 @@ window::window(const window_settings& settings) {
         Apply startup settings
     */
 
-    if (m_settings.center_on_startup) {
+    if (settings.center_on_startup) {
         glfwSetWindowMonitor(glfw_handle, NULL,
-            (GetSystemMetrics(SM_CXSCREEN) / 2) - (m_settings.width  / 2),
-            (GetSystemMetrics(SM_CYSCREEN) / 2) - (m_settings.height / 2),
-            m_settings.width, m_settings.height, GLFW_DONT_CARE);
+            (GetSystemMetrics(SM_CXSCREEN) / 2) - (settings.width  / 2),
+            (GetSystemMetrics(SM_CYSCREEN) / 2) - (settings.height / 2),
+            settings.width, settings.height, GLFW_DONT_CARE);
     }
 
-    if (m_settings.maximize_on_startup) {
+    if (settings.maximize_on_startup) {
         maximize();
     }
 
-    if (m_settings.minimized_to_st_on_startup) {
+    if (settings.minimized_to_st_on_startup) {
         minimize_to_st();
     }
 
@@ -96,7 +96,7 @@ window::window(const window_settings& settings) {
         Apply standard settings
     */
 
-    internal_apply_settings();
+    set_settings(settings);
     
     /*
         Initialize ImGUI
@@ -105,27 +105,37 @@ window::window(const window_settings& settings) {
     if (!internal_initialize_imgui()) {
         throw std::runtime_error("Failed to initialize ImGUI.");
     }
-
 }
 
 window::~window() {
     internal_teardown_imgui();
 }
 
-const window_settings& window::get_settings() const {
-    return m_settings;
+window_settings window::get_settings() const {
+    if (!m_context) return {};
+
+    auto settings = m_context->get_settings();
+    return settings ? *settings : window_settings();
 }
 
 void window::set_settings(const window_settings& settings) {
-    m_settings = settings;
-
-    // TODO: Fire update event
+    if (!m_context) return;
+    m_context->set_settings(settings);
 }
 
 void window::event_loop() {
     // Cancel event loop if failed to initialize
     if (!initialize())
         return;
+
+    bool has_multi_viewport = false;
+
+    {
+        auto settings = m_context->get_settings();
+        if (!settings) return;
+
+        has_multi_viewport = settings->enable_multi_viewport;
+    }
 
     while (m_context && !m_context->is_closing()) {
         /*
@@ -170,7 +180,7 @@ void window::event_loop() {
         LIBGUI_IMGUI_OPENGL_RENDER(ImGui::GetDrawData());
         ImGui::EndFrame();
 
-        if (m_settings.enable_multi_viewport) {
+        if (has_multi_viewport) {
             auto backup_context = glfwGetCurrentContext();
             ImGui::UpdatePlatformWindows();
             ImGui::RenderPlatformWindowsDefault();
@@ -294,15 +304,19 @@ void window::clear_frame_buffer(float r, float g, float b) {
 // PRIVATE
 
 bool window::internal_initialize_imgui() {
+    auto settings = m_context->get_settings();
+    if (!settings)
+        return false;
+
     ImGui::CreateContext();
 
     ImGuiIO& io = ImGui::GetIO();
     io.IniFilename = NULL;
 
-    if (m_settings.enable_docking)
+    if (settings->enable_docking)
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-    if (m_settings.enable_multi_viewport)
+    if (settings->enable_multi_viewport)
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
     if (!ImGui_ImplGlfw_InitForOpenGL(m_context->get_glfw_handle(), true))
@@ -319,17 +333,4 @@ void window::internal_teardown_imgui() {
     LIBGUI_IMGUI_OPENGL_SHUTDOWN();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
-}
-
-void window::internal_apply_settings() {
-    if (!m_context)
-        return;
-
-    m_context->set_borderless(m_settings.borderless);
-    m_context->set_resizable(m_settings.resizable);
-
-    // Sync settings with current state
-
-    m_settings.borderless = m_context->is_borderless();
-    m_settings.resizable  = m_context->is_resizable();
 }

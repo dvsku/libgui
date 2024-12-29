@@ -32,6 +32,12 @@ namespace libgui::internals {
         // Get handle to Win32 window instance
         HWND get_win32_handle();
 
+        // Get window settings
+        window_settings* get_settings();
+
+        // Set window settings
+        void set_settings(const window_settings& settings);
+
     public:
         // Request for the window to be closed
         void request_close();
@@ -83,6 +89,9 @@ namespace libgui::internals {
     private:
         // Handle to libgui window instance
         window* m_wnd = nullptr;
+
+        // Window settings
+        window_settings m_settings = {};
 
         // Handle to GLFW window instance
         GLFWwindow* m_glfw_handle = nullptr;

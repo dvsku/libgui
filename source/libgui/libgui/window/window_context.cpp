@@ -86,6 +86,14 @@ HWND window_context::get_win32_handle() {
     return glfwGetWin32Window(m_glfw_handle);
 }
 
+window_settings* window_context::get_settings() {
+    return &m_settings;
+}
+
+void window_context::set_settings(const window_settings& settings) {
+
+}
+
 void window_context::request_close() {
     if (!m_glfw_handle)
         return;
@@ -264,8 +272,8 @@ void window_context::internal_initialize_st() {
     m_st_handle->uCallbackMessage = WM_USER_TRAYICON;
     m_st_handle->hIcon            = (HICON)GetClassLongPtr(win32_handle, GCLP_HICON);
 
-    strncpy(m_st_handle->szTip, window->m_settings.title.c_str(),
-        min(sizeof(m_st_handle->szTip), window->m_settings.title.size()));
+    strncpy(m_st_handle->szTip, m_settings.title.c_str(),
+        min(sizeof(m_st_handle->szTip), m_settings.title.size()));
 }
 
 void window_context::internal_teardown_st() {

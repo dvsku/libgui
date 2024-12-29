@@ -6,7 +6,6 @@
 #include "libgui/event/event_system.hpp"
 #include "libgui/event/events.hpp"
 
-#include <string>
 #include <memory>
 
 namespace libgui::internals {
@@ -31,7 +30,7 @@ namespace libgui {
 
     public:
         // Get window settings
-        const window_settings& get_settings() const;
+        window_settings get_settings() const;
 
         // Set window settings
         void set_settings(const window_settings& settings);
@@ -123,15 +122,11 @@ namespace libgui {
         friend internals::window_context;
 
     private:
-        std::unique_ptr<internals::window_context> m_context  = nullptr;
-        window_settings                            m_settings = {};
-
-        ev::event_system m_event_system = {};
+        std::unique_ptr<internals::window_context> m_context      = nullptr;
+        ev::event_system                           m_event_system = {};
 
     private:
         bool internal_initialize_imgui();
         void internal_teardown_imgui();
-
-        void internal_apply_settings();
     };
 }
