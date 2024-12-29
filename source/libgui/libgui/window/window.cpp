@@ -209,14 +209,22 @@ void window::minimize_to_tb() {
     if (!m_context)
         return;
 
-    m_context->minimize_to_tb();
+    m_context->set_minimize_to_tb(true);
 }
 
 void window::minimize_to_st() {
     if (!m_context)
         return;
 
-    m_context->minimize_to_st();
+    m_context->set_minimize_to_st(true);
+}
+
+void window::minimize_restore() {
+    if (!m_context)
+        return;
+
+    m_context->set_minimize_to_tb(false);
+    m_context->set_minimize_to_st(false);
 }
 
 void window::maximize() {
@@ -224,7 +232,7 @@ void window::maximize() {
     m_context->set_maximized(true);
 }
 
-void window::restore() {
+void window::maximize_restore() {
     if (!m_context) return;
     m_context->set_maximized(false);
 }

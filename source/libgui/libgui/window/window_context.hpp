@@ -50,10 +50,10 @@ namespace libgui::internals {
         void request_close();
 
         // Minimize the window to taskbar
-        void minimize_to_tb();
+        void set_minimize_to_tb(bool value);
 
         // Minimize the window to system tray
-        void minimize_to_st();
+        void set_minimize_to_st(bool value);
 
         // Set window maximized or restore to windowed size
         void set_maximized(bool value);
@@ -121,8 +121,14 @@ namespace libgui::internals {
         // Handle to taskbar for this window instance
         ITaskbarList3* m_tb_handle = nullptr;
 
+        // Is minimized to taskbar?
+        bool m_minimized_to_tb = false;
+
         // Is minimized to system tray?
         bool m_minimized_to_st = false;
+
+        // Is window maximized?
+        bool m_maximized = false;
 
         // Is window borderless?
         bool m_borderless = false;

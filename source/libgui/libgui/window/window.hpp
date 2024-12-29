@@ -63,11 +63,13 @@ namespace libgui {
         // Minimize the window to system tray
         void minimize_to_st();
 
+        void minimize_restore();
+
         // Maximize the window
         void maximize();
 
         // Restore the window from maximized to windowed size
-        void restore();
+        void maximize_restore();
 
         // Set taskbar progress bar state
         void set_tb_state(taskbar_state state);

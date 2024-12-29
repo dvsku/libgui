@@ -112,38 +112,58 @@ void window_context::request_close() {
     glfwSetWindowShouldClose(m_glfw_handle, GLFW_TRUE);
 }
 
-void window_context::minimize_to_tb() {
+void window_context::set_minimize_to_tb(bool value) {
     if (!m_glfw_handle)
         return;
 
-    if (is_minimized_to_tb() || is_minimized_to_st())
+    if (is_minimized_to_st())
         return;
 
-    glfwIconifyWindow(m_glfw_handle);
+    if (!is_minimized_to_tb() && value) {
+        glfwIconifyWindow(m_glfw_handle);
+    }
+    else if (is_minimized_to_tb() && !value) {
+        glfwRestoreWindow(m_glfw_handle);
+    }
 }
 
-void window_context::minimize_to_st() {
+void window_context::set_minimize_to_st(bool value) {
     if (!m_glfw_handle)
         return;
 
-    if (is_minimized_to_tb() || is_minimized_to_st())
+    if (is_minimized_to_tb())
         return;
 
     auto win32_handle = get_win32_handle();
     if (!win32_handle)
         return;
 
-    if (!internal_set_st_icon_visible(true)) {
-        return;
-    }
+    if (!is_minimized_to_st() && value) {
+        if (!internal_set_st_icon_visible(true)) {
+            return;
+        }
 
-    if (!ShowWindow(win32_handle, SW_HIDE)) {
-        internal_set_st_icon_visible(false);
-        return;
+        if (!ShowWindow(win32_handle, SW_HIDE)) {
+            internal_set_st_icon_visible(false);
+            return;
+        }
+
     }
+    else if (is_minimized_to_st() && !value) {
+        if (!internal_set_st_icon_visible(false)) {
+            return;
+        }
+
+        if (ShowWindow(win32_handle, SW_SHOW)) {
+            internal_set_st_icon_visible(true);
+            return;
+        }
+
+        SetForegroundWindow(win32_handle);
 
     m_minimized_to_st = true;
     window_context::internal_minimize_callback(m_glfw_handle, GLFW_TRUE);
+    }
 }
 
 void window_context::set_maximized(bool value) {
@@ -238,8 +258,7 @@ bool window_context::is_closing() const {
 }
 
 bool window_context::is_minimized_to_tb() const {
-    if (!m_glfw_handle) return false;
-    return glfwGetWindowAttrib(m_glfw_handle, GLFW_ICONIFIED) && !m_minimized_to_st;
+    return m_minimized_to_tb;
 }
 
 bool window_context::is_minimized_to_st() const {
@@ -247,8 +266,7 @@ bool window_context::is_minimized_to_st() const {
 }
 
 bool window_context::is_maximized() const {
-    if (!m_glfw_handle) return false;
-    return glfwGetWindowAttrib(m_glfw_handle, GLFW_MAXIMIZED);
+    return m_maximized;
 }
 
 bool window_context::is_borderless() const {
