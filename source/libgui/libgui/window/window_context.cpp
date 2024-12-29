@@ -10,6 +10,12 @@ using namespace libgui::internals;
 #define WM_USER_TRAYICON WM_USER + 1
 
 ///////////////////////////////////////////////////////////////////////////////
+// INTERNAL
+///////////////////////////////////////////////////////////////////////////////
+
+static std::string internal_get_glfw_failure();
+
+///////////////////////////////////////////////////////////////////////////////
 // PUBLIC
 
 window_context::window_context(window* window, GLFWwindow* handle)
@@ -595,4 +601,11 @@ void window_context::internal_drop_callback(GLFWwindow* window, int count, const
     if (!instance) return;
 
     instance->on_drop(count, paths);
+}///////////////////////////////////////////////////////////////////////////////
+// INTERNAL
+///////////////////////////////////////////////////////////////////////////////
+
+std::string internal_get_glfw_failure() {
+    const char* desc = nullptr;
+    return glfwGetError(&desc) != GLFW_NO_ERROR && desc ? std::string(desc) : "";
 }
