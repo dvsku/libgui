@@ -53,15 +53,15 @@ window::window(const window_settings& settings) {
 
     SetWindowLongPtr(win32_handle, GWLP_USERDATA, (intptr_t)this);
     glfwSetWindowUserPointer(glfw_handle, this);
+    m_context = std::make_unique<internals::window_context>(this, glfw_handle);
+    if (!m_context) {
+        throw std::runtime_error("Failed to create context.");
+    }
 
     /*
         Create and initialize context
     */
 
-    m_context = std::make_unique<internals::window_context>(glfw_handle);
-    if (!m_context) {
-        throw std::runtime_error("Failed to create context.");
-    }
 
     if (!m_context->initialize()) {
         throw std::runtime_error("Failed to initialize context.");

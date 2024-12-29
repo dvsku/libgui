@@ -19,7 +19,7 @@ namespace libgui::internals {
     class window_context {
     public:
         window_context() = delete;
-        window_context(GLFWwindow* handle);
+        window_context(window* window, GLFWwindow* handle);
         ~window_context();
 
     public:
@@ -81,6 +81,9 @@ namespace libgui::internals {
         bool is_resizable() const;
 
     private:
+        // Handle to libgui window instance
+        window* m_wnd = nullptr;
+
         // Handle to GLFW window instance
         GLFWwindow* m_glfw_handle = nullptr;
 

@@ -1,5 +1,4 @@
 #include "libgui/window/window_context.hpp"
-#include "libgui/window/window.hpp"
 
 #include <stdexcept>
 #include <versionhelpers.h>
@@ -13,8 +12,8 @@ using namespace libgui::internals;
 ///////////////////////////////////////////////////////////////////////////////
 // PUBLIC
 
-window_context::window_context(GLFWwindow* handle)
-    : m_glfw_handle(handle) {}
+window_context::window_context(window* window, GLFWwindow* handle)
+    : m_wnd(window), m_glfw_handle(handle) {}
 
 window_context::~window_context() {
     teardown();
