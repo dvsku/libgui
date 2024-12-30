@@ -243,8 +243,8 @@ bool window_context::set_borderless(bool value) {
         SetWindowPos(win32_handle, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
     }
     else if (m_borderless && !value) {
-        SetWindowLongPtr(win32_handle, GWL_STYLE,    m_standard_wnd_style);
-        SetWindowLongPtr(win32_handle, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(internals::window_context::internal_wndproc_callback_standard));
+        SetWindowLongPtr(win32_handle, GWL_STYLE,    m_windowed_wnd_style);
+        SetWindowLongPtr(win32_handle, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(internals::window_context::internal_wndproc_callback_windowed));
 
         // Force window redraw
         SetWindowPos(win32_handle, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
