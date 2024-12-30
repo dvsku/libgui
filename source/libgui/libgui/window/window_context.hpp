@@ -106,8 +106,8 @@ namespace libgui::internals {
         // Default WNDPROC callback
         WNDPROC m_wndproc_default_callback = nullptr;
 
-        // Standard Win32 window style
-        LONG_PTR m_standard_wnd_style = 0;
+        // Windowed Win32 window style
+        LONG_PTR m_windowed_wnd_style = 0;
 
         // Borderless Win32 window style
         LONG_PTR m_borderless_wnd_style = 0;

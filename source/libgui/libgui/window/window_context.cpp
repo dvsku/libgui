@@ -60,10 +60,10 @@ bool window_context::initialize() {
         return false;
 
     // Save standard style
-    m_standard_wnd_style = GetWindowLongPtr(win32_handle, GWL_STYLE);
+    m_windowed_wnd_style = GetWindowLongPtr(win32_handle, GWL_STYLE);
 
     // Save borderless style
-    m_borderless_wnd_style = m_standard_wnd_style;
+    m_borderless_wnd_style = m_windowed_wnd_style;
     m_borderless_wnd_style |= WS_OVERLAPPEDWINDOW;
     m_borderless_wnd_style |= WS_CAPTION;
     m_borderless_wnd_style |= WS_MAXIMIZEBOX;
@@ -71,9 +71,9 @@ bool window_context::initialize() {
     m_borderless_wnd_style |= CS_VREDRAW;
     m_borderless_wnd_style |= CS_HREDRAW;
 
-    /*
-        Set callbacks
-    */
+    // Set to windowed
+    SetWindowLongPtr(win32_handle, GWL_STYLE,    m_windowed_wnd_style);
+    SetWindowLongPtr(win32_handle, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(internals::window_context::internal_wndproc_callback_windowed));
 
     // Set GLFW callbacks
 
