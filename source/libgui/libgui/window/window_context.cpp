@@ -409,6 +409,10 @@ void window_context::internal_initialize_event() {
     internal_event_attach<libgui::internals::ev::ev_frame_buffer_resized>([this](const auto& event) {
         internal_event_callback(event);
     });
+
+    internal_event_attach<libgui::internals::ev::ev_update_settings>([this](const auto& event) {
+        internal_event_callback(event);
+    });
 }
 
 void window_context::internal_teardown_event() {
@@ -740,6 +744,25 @@ void window_context::internal_event_callback(const libgui::internals::ev::ev_res
 
 void window_context::internal_event_callback(const libgui::internals::ev::ev_frame_buffer_resized& event) {
     glViewport(0, 0, event.width, event.height);
+}
+
+void window_context::internal_event_callback(const libgui::internals::ev::ev_update_settings& event) {
+    m_settings = event.settings;
+    
+    set_borderless(event.settings.borderless);
+    set_resizable(event.settings.resizable);
+
+    // Sync settings with current state
+
+    m_settings.borderless = is_borderless();
+    m_settings.resizable  = is_resizable();
+
+    // Fire settings updated event
+
+    libgui::ev::ev_settings_updated ev;
+    ev.settings = m_settings;
+
+    internal_enqueue_event(std::move(ev));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

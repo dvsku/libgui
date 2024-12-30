@@ -1,6 +1,7 @@
 #pragma once
 
 #include "libgui/event/event.hpp"
+#include "libgui/window/window_settings.hpp"
 
 namespace libgui::internals::ev {
     class internal_event : public libgui::ev::event {};
@@ -12,5 +13,10 @@ namespace libgui::internals::ev {
     struct ev_frame_buffer_resized : internal_event {
         int width  = 0;
         int height = 0;
+    };
+
+    // Sent when settings need updating.
+    struct ev_update_settings : internal_event {
+        window_settings settings = {};
     };
 }

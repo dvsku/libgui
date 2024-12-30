@@ -186,6 +186,8 @@ namespace libgui::internals {
         void internal_event_callback(const libgui::ev::ev_maximize_restore& event);
         void internal_event_callback(const libgui::internals::ev::ev_restore& event);
         void internal_event_callback(const libgui::internals::ev::ev_frame_buffer_resized& event);
+        void internal_event_callback(const libgui::internals::ev::ev_update_settings& event);
+
     private:
         static void internal_glfw_window_resize_callback(GLFWwindow* window, int width, int height);
         static void internal_glfw_frame_buffer_resize_callback(GLFWwindow* window, int width, int height);

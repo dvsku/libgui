@@ -1,6 +1,7 @@
 #pragma once
 
 #include "libgui/event/event.hpp"
+#include "libgui/window/window_settings.hpp"
 
 #include <string>
 #include <vector>
@@ -120,5 +121,10 @@ namespace libgui::ev {
     // Sent when dropping dragged files into the window.
     struct ev_drop : window_event {
         std::vector<std::string> files = {};
+    };
+
+    // Sent when window settings have been updated.
+    struct ev_settings_updated : window_event {
+        window_settings settings = {};
     };
 }
