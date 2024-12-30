@@ -84,4 +84,28 @@ namespace libgui::ev {
 
     // Sent when window has been restored from maximized to windowed mode.
     struct ev_maximize_restored : window_event {};
+
+    // Sent when scrolling inside the window.
+    struct ev_scroll : window_event {
+        double dx = 0;
+        double dy = 0;
+    };
+
+    // Sent when a mouse button has been pressed or released.
+    struct ev_mouse_btn_state_updated : window_event {
+        int btn   = 0;
+        int state = 0;
+        int mod   = 0;
+    };
+
+    // Sent when mouse has moved.
+    struct ev_mouse_moved : window_event {
+        double x = 0;
+        double y = 0;
+    };
+
+    // Sent when dropping dragged files into the window.
+    struct ev_drop : window_event {
+        std::vector<std::string> files = {};
+    };
 }

@@ -239,18 +239,6 @@ void window::on_gui_update() {}
 
 void window::on_gui_after_update() {}
 
-void window::on_resize(int width, int height) {}
-
-void window::on_scroll(double dx, double dy) {}
-
-void window::on_mouse_button(int button, int action, int modifier) {}
-
-void window::on_mouse_move(double dx, double dy) {}
-
-void window::on_minimize(bool minimized) {}
-
-void window::on_drop(int count, const char* paths[]) {}
-
 void window::clear_frame_buffer(float r, float g, float b) {
     glClearColor(r, g, b, 0xFF);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

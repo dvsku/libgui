@@ -168,6 +168,9 @@ namespace libgui::internals {
         void internal_initialize_tb();
         void internal_teardown_tb();
 
+        void internal_initialize_event();
+        void internal_teardown_event();
+
         // Show/hide window icon in system tray
         // Return true if change was successful, false if no change occurred
         bool internal_set_st_icon_visible(bool value);
@@ -180,12 +183,13 @@ namespace libgui::internals {
         static LRESULT __stdcall internal_wndproc_callback_standard(HWND handle, UINT msg, WPARAM wparam, LPARAM lparam);
         static LRESULT __stdcall internal_wndproc_callback_borderless(HWND handle, UINT msg, WPARAM wparam, LPARAM lparam);
 
+        void internal_event_callback(const libgui::internals::ev::ev_frame_buffer_resized& event);
     private:
-        static void internal_resize_callback(GLFWwindow* window, int width, int height);
-        static void internal_scroll_callback(GLFWwindow* window, double dx, double dy);
-        static void internal_mouse_button_callback(GLFWwindow* window, int button, int action, int modifier);
-        static void internal_mouse_move_callback(GLFWwindow* window, double x, double y);
-        static void internal_minimize_callback(GLFWwindow* window, int minimized);
-        static void internal_drop_callback(GLFWwindow* window, int count, const char* paths[]);
+        static void internal_glfw_window_resize_callback(GLFWwindow* window, int width, int height);
+        static void internal_glfw_frame_buffer_resize_callback(GLFWwindow* window, int width, int height);
+        static void internal_glfw_scroll_callback(GLFWwindow* window, double dx, double dy);
+        static void internal_glfw_mouse_btn_callback(GLFWwindow* window, int btn, int state, int mod);
+        static void internal_glfw_mouse_move_callback(GLFWwindow* window, double x, double y);
+        static void internal_glfw_drop_callback(GLFWwindow* window, int count, const char* files[]);
     };
 }

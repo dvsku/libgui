@@ -111,13 +111,6 @@ namespace libgui {
     	virtual void on_gui_update();
     	virtual void on_gui_after_update();
 
-    	virtual void on_resize(int width, int height);
-    	virtual void on_scroll(double dx, double dy);
-    	virtual void on_mouse_button(int button, int action, int modifier);
-    	virtual void on_mouse_move(double dx, double dy);
-        virtual void on_minimize(bool minimized);
-        virtual void on_drop(int count, const char* paths[]);
-
     protected:
         // Clear the frame buffer to a specific color
         void clear_frame_buffer(float r = 0x00, float g = 0x00, float b = 0x00);

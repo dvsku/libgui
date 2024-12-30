@@ -75,16 +75,16 @@ bool window_context::initialize() {
         Set callbacks
     */
 
-    glfwSetWindowSizeCallback(m_glfw_handle, window_context::internal_resize_callback);
-    glfwSetScrollCallback(m_glfw_handle, window_context::internal_scroll_callback);
-    glfwSetMouseButtonCallback(m_glfw_handle, window_context::internal_mouse_button_callback);
-    glfwSetCursorPosCallback(m_glfw_handle, window_context::internal_mouse_move_callback);
-    glfwSetWindowIconifyCallback(m_glfw_handle, window_context::internal_minimize_callback);
-    glfwSetDropCallback(m_glfw_handle, window_context::internal_drop_callback);
+    // Set GLFW callbacks
 
-    /*
-        Initialize taskbar
-    */
+    glfwSetWindowSizeCallback(m_glfw_handle, window_context::internal_glfw_window_resize_callback);
+    glfwSetFramebufferSizeCallback(m_glfw_handle, window_context::internal_glfw_frame_buffer_resize_callback);
+    glfwSetScrollCallback(m_glfw_handle, window_context::internal_glfw_scroll_callback);
+    glfwSetMouseButtonCallback(m_glfw_handle, window_context::internal_glfw_mouse_btn_callback);
+    glfwSetCursorPosCallback(m_glfw_handle, window_context::internal_glfw_mouse_move_callback);
+    glfwSetDropCallback(m_glfw_handle, window_context::internal_glfw_drop_callback);
+
+    // Set event callbacks
     internal_initialize_event();
 
     internal_initialize_tb();
@@ -119,6 +119,7 @@ bool window_context::initialize() {
 }
 
 void window_context::teardown() {
+    internal_teardown_event();
     internal_teardown_tb();
     internal_teardown_st();
 }
@@ -390,6 +391,16 @@ void window_context::internal_teardown_tb() {
     m_tb_handle = nullptr;
 }
 
+void window_context::internal_initialize_event() {
+    internal_event_attach<libgui::internals::ev::ev_frame_buffer_resized>([this](const auto& event) {
+        internal_event_callback(event);
+    });
+}
+
+void window_context::internal_teardown_event() {
+
+}
+
 bool window_context::internal_set_st_icon_visible(bool value) {
     if (!m_st_handle)
         return false;
@@ -592,58 +603,95 @@ LRESULT window_context::internal_wndproc_callback_borderless(HWND handle, UINT m
     return CallWindowProc(context->m_wndproc_default_callback, handle, msg, wparam, lparam);
 }
 
+void window_context::internal_event_callback(const libgui::internals::ev::ev_frame_buffer_resized& event) {
+    glViewport(0, 0, event.width, event.height);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // GLFW CALLBACKS
 
-void window_context::internal_resize_callback(GLFWwindow* window, int width, int height) {
-    if (width == 0 || height == 0) return;
+void window_context::internal_glfw_window_resize_callback(GLFWwindow* window, int width, int height)
+{
+    window_context* context = static_cast<window_context*>(glfwGetWindowUserPointer(window));
+    if (!context || !context->m_wnd)
+        return;
 
-    libgui::window* instance = static_cast<libgui::window*>(glfwGetWindowUserPointer(window));
-    if (!instance) return;
+    libgui::ev::ev_resized ev;
+    ev.width  = width;
+    ev.height = height;
 
-    glViewport(0, 0, width, height);
-    instance->on_resize(width, height);
+    context->internal_enqueue_event(std::move(ev));
 }
 
-void window_context::internal_scroll_callback(GLFWwindow* window, double dx, double dy) {
-    libgui::window* instance = static_cast<libgui::window*>(glfwGetWindowUserPointer(window));
-    if (!instance) return;
+void window_context::internal_glfw_frame_buffer_resize_callback(GLFWwindow* window, int width, int height)
+{
+    window_context* context = static_cast<window_context*>(glfwGetWindowUserPointer(window));
+    if (!context || !context->m_wnd)
+        return;
 
-    instance->on_scroll(dx, dy);
+    libgui::internals::ev::ev_frame_buffer_resized ev;
+    ev.width  = width;
+    ev.height = height;
+
+    context->internal_enqueue_event(std::move(ev));
 }
 
-void window_context::internal_mouse_button_callback(GLFWwindow* window, int button, int action, int modifier) {
-    libgui::window* instance = static_cast<libgui::window*>(glfwGetWindowUserPointer(window));
-    if (!instance) return;
+void window_context::internal_glfw_scroll_callback(GLFWwindow* window, double dx, double dy)
+{
+    window_context* context = static_cast<window_context*>(glfwGetWindowUserPointer(window));
+    if (!context || !context->m_wnd)
+        return;
 
-    instance->on_mouse_button(button, action, modifier);
+    libgui::ev::ev_scroll ev;
+    ev.dx = dx;
+    ev.dy = dy;
+
+    context->internal_enqueue_event(std::move(ev));
 }
 
-void window_context::internal_mouse_move_callback(GLFWwindow* window, double x, double y) {
-    libgui::window* instance = static_cast<libgui::window*>(glfwGetWindowUserPointer(window));
-    if (!instance) return;
+void window_context::internal_glfw_mouse_btn_callback(GLFWwindow* window, int btn, int state, int mod)
+{
+    window_context* context = static_cast<window_context*>(glfwGetWindowUserPointer(window));
+    if (!context || !context->m_wnd)
+        return;
 
-    instance->m_mouse_pos.dx = x - instance->m_mouse_pos.x;
-    instance->m_mouse_pos.dy = instance->m_mouse_pos.y - y;
-    instance->m_mouse_pos.x  = x;
-    instance->m_mouse_pos.y  = y;
+    libgui::ev::ev_mouse_btn_state_updated ev;
+    ev.btn   = btn;
+    ev.state = state;
+    ev.mod   = mod;
 
-    instance->on_mouse_move(instance->m_mouse_pos.dx, instance->m_mouse_pos.dy);
+    context->internal_enqueue_event(std::move(ev));
 }
 
-void window_context::internal_minimize_callback(GLFWwindow* window, int minimized) {
-    libgui::window* instance = static_cast<libgui::window*>(glfwGetWindowUserPointer(window));
-    if (!instance) return;
+void window_context::internal_glfw_mouse_move_callback(GLFWwindow* window, double x, double y)
+{
+    window_context* context = static_cast<window_context*>(glfwGetWindowUserPointer(window));
+    if (!context || !context->m_wnd)
+        return;
 
-    instance->on_minimize(minimized);
+    libgui::ev::ev_mouse_moved ev;
+    ev.x = x;
+    ev.y = y;
+
+    context->internal_enqueue_event(std::move(ev));
 }
 
-void window_context::internal_drop_callback(GLFWwindow* window, int count, const char* paths[]) {
-    libgui::window* instance = static_cast<libgui::window*>(glfwGetWindowUserPointer(window));
-    if (!instance) return;
+void window_context::internal_glfw_drop_callback(GLFWwindow* window, int count, const char* files[])
+{
+    window_context* context = static_cast<window_context*>(glfwGetWindowUserPointer(window));
+    if (!context || !context->m_wnd)
+        return;
 
-    instance->on_drop(count, paths);
-}///////////////////////////////////////////////////////////////////////////////
+    libgui::ev::ev_drop ev;
+    
+    for (int i = 0; i < count; i++) {
+        ev.files.push_back(files[i]);
+    }
+
+    context->internal_enqueue_event(std::move(ev));
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // INTERNAL
 ///////////////////////////////////////////////////////////////////////////////
 
