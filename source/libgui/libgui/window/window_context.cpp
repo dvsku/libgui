@@ -392,6 +392,30 @@ void window_context::internal_teardown_tb() {
 }
 
 void window_context::internal_initialize_event() {
+    internal_event_attach<libgui::ev::ev_close>([this](const auto& event) {
+        internal_event_callback(event);
+    });
+
+    internal_event_attach<libgui::ev::ev_minimize>([this](const auto& event) {
+        internal_event_callback(event);
+    });
+
+    internal_event_attach<libgui::ev::ev_minimize_restore>([this](const auto& event) {
+        internal_event_callback(event);
+    });
+
+    internal_event_attach<libgui::ev::ev_maximize>([this](const auto& event) {
+        internal_event_callback(event);
+    });
+
+    internal_event_attach<libgui::ev::ev_maximize_restore>([this](const auto& event) {
+        internal_event_callback(event);
+    });
+
+    internal_event_attach<libgui::internals::ev::ev_restore>([this](const auto& event) {
+        internal_event_callback(event);
+    });
+
     internal_event_attach<libgui::internals::ev::ev_frame_buffer_resized>([this](const auto& event) {
         internal_event_callback(event);
     });
@@ -419,51 +443,115 @@ bool window_context::internal_set_st_icon_visible(bool value) {
     return true;
 }
 
-void window_context::internal_restore_from_st() {
-    if (!m_glfw_handle)
-        return;
-
-    auto window = static_cast<libgui::window*>(glfwGetWindowUserPointer(m_glfw_handle));
-    if (!window)
-        return;
-
-    auto win32_handle = glfwGetWin32Window(m_glfw_handle);
-    if (!win32_handle) 
-        return;
-
-    if (!internal_set_st_icon_visible(false))
-        return;
-
-    if (ShowWindow(win32_handle, SW_SHOW)) {
-        internal_set_st_icon_visible(true);
-        return;
-    }
-
-    SetForegroundWindow(win32_handle);
-
-    m_minimized_to_st = false;
-    window_context::internal_minimize_callback(m_glfw_handle, GLFW_FALSE);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 // WNDPROC
 
-LRESULT window_context::internal_wndproc_callback_standard(HWND handle, UINT msg, WPARAM wparam, LPARAM lparam) {
-    window* wnd = (window*)GetWindowLongPtr(handle, GWLP_USERDATA);
-    if (!wnd) {
-        return 0;
-    }
-
-    window_context* context = wnd->m_context.get();
+LRESULT window_context::internal_wndproc_callback_windowed(HWND handle, UINT msg, WPARAM wparam, LPARAM lparam) {
+    window_context* context = (window_context*)GetWindowLongPtr(handle, GWLP_USERDATA);
     if (!context) {
         return 0;
     }
-    
+
     switch (msg) {
+        // Handle events when window was:
+        //      Requested to close
+        //      Requested to minimize
+        //      Requested to maximize
+        //      Requested to restore from maximize
+        //      Requested to restore from taskbar
+        //
+        // These events override default window behavior.
+        case WM_SYSCOMMAND: {
+            if (wparam == SC_CLOSE) {
+                context->internal_enqueue_event<libgui::ev::ev_close>({});
+                return 0;
+            }
+
+            if (wparam == SC_MINIMIZE) {
+                context->internal_enqueue_event<libgui::ev::ev_minimize>({});
+                return 0;
+            }
+
+            if (wparam == SC_MAXIMIZE) {
+                context->internal_enqueue_event<libgui::ev::ev_maximize>({});
+                return 0;
+            }
+
+            if (wparam == SC_RESTORE) {
+                context->internal_dispatch_event<libgui::internals::ev::ev_restore>({});
+                return 0;
+            }
+            
+            break;
+        }
+
+        // Handle events when window was:
+        //      Minimized/restored to/from taskbar
+        //      Maximized/restored
+        case WM_SIZE: {
+            if (wparam == SIZE_MINIMIZED) {
+                if (!context->m_minimized_to_tb) {
+                    context->m_minimized_to_tb = true;
+                    context->internal_dispatch_event<libgui::ev::ev_minimized>({});
+                }
+            }
+            else if (wparam == SIZE_MAXIMIZED) {
+                // If a maximized window is minimized to taskbar and is restored
+                // from the taskbar, Win32 API sends a SIZE_MAXIMIZED message.
+                //
+                // When that happens, send an ev_minimize_restored event since
+                // the window was actually restored from taskbar and is already maximized.
+                if (context->m_minimized_to_tb) {
+                    context->m_minimized_to_tb = false;
+                    context->internal_enqueue_event<libgui::ev::ev_minimize_restored>({});
+                }
+                else if (!context->m_maximized) {
+                    context->m_maximized = true;
+                    context->internal_enqueue_event<libgui::ev::ev_maximized>({});
+                }
+            }
+            else if (wparam == SIZE_RESTORED) {
+                if (context->m_maximized) {
+                    context->m_maximized = false;
+                    context->internal_enqueue_event<libgui::ev::ev_maximize_restored>({});
+                }
+                else if (context->m_minimized_to_tb) {
+                    context->m_minimized_to_tb = false;
+                    context->internal_enqueue_event<libgui::ev::ev_minimize_restored>({});
+                }
+            }
+
+            break;
+        }
+
+        // Handle events when window was:
+        //      Minimized/restored to/from system tray
+        case WM_SHOWWINDOW: {
+            // If call wasn't because of ShowWindow(), do default
+            if (lparam != 0)
+                break;
+
+            // Window was restored
+            if (wparam) {
+                context->m_minimized_to_st = false;
+                context->internal_enqueue_event<libgui::ev::ev_minimize_restored>({});
+            }
+            // Window was minimized
+            else {
+                context->m_minimized_to_st = true;
+                context->internal_dispatch_event<libgui::ev::ev_minimized>({});
+            }
+
+            break;
+        }
+
+        // Handle events when window was:
+        //      Requested to restore from system tray
         case WM_USER_TRAYICON: {
             if (lparam == WM_LBUTTONDOWN) {
-                context->set_maximized(!context->is_maximized());
+                context->internal_dispatch_event<libgui::internals::ev::ev_restore>({});
             }
+
             break;
         }
 
@@ -601,6 +689,63 @@ LRESULT window_context::internal_wndproc_callback_borderless(HWND handle, UINT m
     }
 
     return CallWindowProc(context->m_wndproc_default_callback, handle, msg, wparam, lparam);
+}
+
+void window_context::internal_event_callback(const libgui::ev::ev_close& event) {
+    if (!m_wnd) return;
+
+    if (m_settings.minimize_to_st_on_close) {
+        return set_minimize_to_st(true);
+    }
+
+    request_close();
+}
+
+void window_context::internal_event_callback(const libgui::ev::ev_minimize& event) {
+    if (!m_wnd) return;
+
+    if (m_settings.minimize_to_st_on_minimize) {
+        return set_minimize_to_st(true);
+    }
+
+    set_minimize_to_tb(true);
+}
+
+void window_context::internal_event_callback(const libgui::ev::ev_minimize_restore& event) {
+    if (!m_wnd) return;
+
+    if (is_minimized_to_tb()) {
+        return set_minimize_to_tb(false);
+    }
+
+    if (is_minimized_to_st()) {
+        return set_minimize_to_st(false);
+    }
+}
+
+void window_context::internal_event_callback(const libgui::ev::ev_maximize& event) {
+    if (!m_wnd) return;
+    set_maximized(true);
+}
+
+void window_context::internal_event_callback(const libgui::ev::ev_maximize_restore& event) {
+    if (!m_wnd) return;
+    set_maximized(false);
+}
+
+void window_context::internal_event_callback(const libgui::internals::ev::ev_restore& event) {
+    if (!m_wnd || !m_glfw_handle) return;
+
+    if (is_minimized_to_tb() || is_minimized_to_st()) {
+        return internal_dispatch_event<libgui::ev::ev_minimize_restore>({});
+    }
+
+    if (is_maximized()) {
+        return internal_enqueue_event<libgui::ev::ev_maximize_restore>({});
+    }
+
+    // Fallback
+    glfwRestoreWindow(m_glfw_handle);
 }
 
 void window_context::internal_event_callback(const libgui::internals::ev::ev_frame_buffer_resized& event) {

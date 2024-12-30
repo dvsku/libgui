@@ -175,14 +175,16 @@ namespace libgui::internals {
         // Return true if change was successful, false if no change occurred
         bool internal_set_st_icon_visible(bool value);
 
-        // Restore window from system tray
-        // Called by wndproc_callback_*()
-        void internal_restore_from_st();
-
     private:
-        static LRESULT __stdcall internal_wndproc_callback_standard(HWND handle, UINT msg, WPARAM wparam, LPARAM lparam);
+        static LRESULT __stdcall internal_wndproc_callback_windowed(HWND handle, UINT msg, WPARAM wparam, LPARAM lparam);
         static LRESULT __stdcall internal_wndproc_callback_borderless(HWND handle, UINT msg, WPARAM wparam, LPARAM lparam);
 
+        void internal_event_callback(const libgui::ev::ev_close& event);
+        void internal_event_callback(const libgui::ev::ev_minimize& event);
+        void internal_event_callback(const libgui::ev::ev_minimize_restore& event);
+        void internal_event_callback(const libgui::ev::ev_maximize& event);
+        void internal_event_callback(const libgui::ev::ev_maximize_restore& event);
+        void internal_event_callback(const libgui::internals::ev::ev_restore& event);
         void internal_event_callback(const libgui::internals::ev::ev_frame_buffer_resized& event);
     private:
         static void internal_glfw_window_resize_callback(GLFWwindow* window, int width, int height);

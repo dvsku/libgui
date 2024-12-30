@@ -2,6 +2,9 @@
 
 #include "libgui/event/event.hpp"
 
+#include <string>
+#include <vector>
+
 namespace libgui::ev {
     class window_event : public event {};
     class user_event   : public event {};
@@ -84,6 +87,16 @@ namespace libgui::ev {
 
     // Sent when window has been restored from maximized to windowed mode.
     struct ev_maximize_restored : window_event {};
+
+    // Sent when window has been resized.
+    // Size is in screen coordinates, not pixels (even tho they might be the same).
+    struct ev_resized : window_event {
+        // Width of content area
+        int width  = 0;
+
+        // Height of content area
+        int height = 0;
+    };
 
     // Sent when scrolling inside the window.
     struct ev_scroll : window_event {

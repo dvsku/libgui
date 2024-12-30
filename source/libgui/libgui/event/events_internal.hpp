@@ -7,4 +7,10 @@ namespace libgui::internals::ev {
 
     // Sent on all window restore requests.
     struct ev_restore : internal_event {};
+
+    // Sent when frame buffer has been resized.
+    struct ev_frame_buffer_resized : internal_event {
+        int width  = 0;
+        int height = 0;
+    };
 }
