@@ -29,18 +29,19 @@ namespace libgui {
     	virtual ~window();
 
     public:
-        // Get window settings
+        // Get window settings.
         window_settings get_settings() const;
 
-        // Set window settings
+        // Set window settings.
         void set_settings(const window_settings& settings);
 
     public:
-        // Start the event loop
-        // This is a blocking function until the window is closed
+        // Start the event loop.
+        // This is a blocking function until the event loop is stopped.
         void event_loop();
 
-        // Close the window
+        // Stop the event loop.
+        // Does NOT invoke ev_close event.
         void event_loop_stop();
 
         template<typename T>
@@ -57,26 +58,33 @@ namespace libgui {
             m_event_system.remove_callback<T>(handle);
         }
 
+    public:
+        // Request to close the window.
+        // Does invoke ev_close event.
+        // 
+        // Provides the same behavior as the close (X) button.
         void close();
 
-        // Minimize the window to taskbar
+        // Minimize the window to taskbar.
         void minimize_to_tb();
 
-        // Minimize the window to system tray
+        // Minimize the window to system tray.
         void minimize_to_st();
 
+        // Restore window from minimized state.
+        // Restores from taskbar and system tray.
         void minimize_restore();
 
-        // Maximize the window
+        // Maximize the window.
         void maximize();
 
-        // Restore the window from maximized to windowed size
+        // Restore the window from maximized to windowed mode.
         void maximize_restore();
 
-        // Set taskbar progress bar state
+        // Set taskbar progress bar state.
         void set_tb_state(taskbar_state state);
 
-        // Set taskbar progress bar value
+        // Set taskbar progress bar value.
         void set_tb_value(uint64_t value);
 
     public:
@@ -112,7 +120,7 @@ namespace libgui {
     	virtual void on_gui_after_update();
 
     protected:
-        // Clear the frame buffer to a specific color
+        // Clear the frame buffer to a specific color.
         void clear_frame_buffer(float r = 0x00, float g = 0x00, float b = 0x00);
     
     private:

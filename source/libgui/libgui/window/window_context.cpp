@@ -87,12 +87,10 @@ bool window_context::initialize() {
     // Set event callbacks
     internal_initialize_event();
 
+    // Initialize taskbar
     internal_initialize_tb();
 
-    /*
-        Initialize system tray
-    */
-
+    // Initialize system tray
     internal_initialize_st();
 
     // Apply startup settings
@@ -196,7 +194,6 @@ void window_context::set_minimize_to_st(bool value) {
             internal_set_st_icon_visible(false);
             return;
         }
-
     }
     else if (is_minimized_to_st() && !value) {
         if (!internal_set_st_icon_visible(false)) {
@@ -209,9 +206,6 @@ void window_context::set_minimize_to_st(bool value) {
         }
 
         SetForegroundWindow(win32_handle);
-
-    m_minimized_to_st = true;
-    window_context::internal_minimize_callback(m_glfw_handle, GLFW_TRUE);
     }
 }
 
@@ -331,14 +325,10 @@ bool window_context::is_resizable() const {
 ///////////////////////////////////////////////////////////////////////////////
 
 void window_context::internal_initialize_st() {
-    if (m_st_handle || !m_glfw_handle)
+    if (m_st_handle || !m_glfw_handle || !m_wnd)
         return;
 
-    auto window = static_cast<libgui::window*>(glfwGetWindowUserPointer(m_glfw_handle));
-    if (!window)
-        return;
-
-    auto win32_handle = glfwGetWin32Window(m_glfw_handle);
+    auto win32_handle = get_win32_handle();
     if (!win32_handle)
         return;
 
