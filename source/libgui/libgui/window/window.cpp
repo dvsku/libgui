@@ -1,5 +1,6 @@
 #include "libgui/window/window_context.hpp"
 #include "libgui/window/window.hpp"
+#include "libgui/window/window_titlebar_internal.hpp"
 #include "libgui/exceptions/libgui_exception.hpp"
 #include "libgui/theme.hpp"
 #include "libutil/log.hpp"
@@ -103,12 +104,11 @@ void window::event_loop() {
             ImGUI rendering
         */
 
-        // Enable window dragging when mouse is not over an ImGUI item
+        // Disable window dragging when:
+        //      Mouse is over an ImGUI item
+        //      A modal is visible
         if (m_context->is_borderless()) {
-            auto titlebar = get_titlebar();
-            if (titlebar) {
-                titlebar->m_skip_hit_testing = ImGui::IsAnyItemHovered();
-            }
+            LIBGUI_SET_FLAG(m_titlebar_flags, LIBGUI_WTB_SKIP, ImGui::IsAnyItemHovered() || ImGui::GetTopMostAndVisiblePopupModal());
         }
 
         LIBGUI_IMGUI_OPENGL_NEW_FRAME();
@@ -222,10 +222,6 @@ bool window::initialize() {
 }
 
 void window::teardown() {}
-
-window_titlebar* window::get_titlebar() {
-    return nullptr;
-}
 
 void window::on_before_update() {}
 

@@ -102,15 +102,12 @@ namespace libgui {
         bool is_maximized() const;
 
     protected:
+        window_titlebar_flags m_titlebar_flags = 0;
         mouse_pos m_mouse_pos{};
 
     protected:
     	virtual bool initialize();
         virtual void teardown();
-
-        // Implement when using borderless mode and providing
-        // a custom titlebar.
-        virtual window_titlebar* get_titlebar();
 
     	virtual void on_before_update();
     	virtual void on_update();
