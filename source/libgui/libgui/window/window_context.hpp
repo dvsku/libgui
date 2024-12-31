@@ -10,8 +10,30 @@
 #include "libgui/defines/backend.hpp"
 #include "libgui/defines/imgui.hpp"
 #include "libgui/defines/windowing.hpp"
+#include "libgui/defines/libgui.hpp"
 #include "libgui/window/window.hpp"
 #include "libgui/event/events_internal.hpp"
+
+// Is window borderless?
+#define LIBGUI_WND_STATE_BORDERLESS 1 << 0
+
+// Is minimized to taskbar?
+#define LIBGUI_WND_STATE_MINIMIZED_TO_TB 1 << 1
+
+// Is minimized to system tray?
+#define LIBGUI_WND_STATE_MINIMIZED_TO_ST 1 << 2
+
+// Is system tray icon visible?
+#define LIBGUI_WND_STATE_ST_ICON_VISIBLE 1 << 3
+
+// Is window maximized?
+#define LIBGUI_WND_STATE_MAXIMIZED 1 << 4
+
+// Is window resizable?
+#define LIBGUI_WND_STATE_RESIZABLE 1 << 5
+
+// Is window focused?
+#define LIBGUI_WND_STATE_FOCUSED 1 << 6
 
 struct GLFWwindow;
 
@@ -115,26 +137,11 @@ namespace libgui::internals {
         // Handle to system tray data for this window instance.
         NOTIFYICONDATA* m_st_handle = nullptr;
 
-        // Is system tray icon visible?
-        bool m_st_icon_visible = false;
-
         // Handle to taskbar for this window instance.
         ITaskbarList3* m_tb_handle = nullptr;
 
-        // Is minimized to taskbar?
-        bool m_minimized_to_tb = false;
-
-        // Is minimized to system tray?
-        bool m_minimized_to_st = false;
-
-        // Is window maximized?
-        bool m_maximized = false;
-
-        // Is window borderless?
-        bool m_borderless = false;
-
-        // Is window resizable?
-        bool m_resizable = false;
+        // Window state
+        flags_t m_state = 0;
 
     private:
         template<typename T>

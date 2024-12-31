@@ -202,7 +202,7 @@ void window_context::set_maximized(bool value) {
     if (!m_glfw_handle)
         return;
 
-    if (!m_resizable)
+    if (!is_resizable())
         return;
 
     if (!is_maximized() && value) {
@@ -221,14 +221,16 @@ bool window_context::set_borderless(bool value) {
     if (!win32_handle)
         return false;
 
-    if (!m_borderless && value) {
+    bool borderless = is_borderless();
+
+    if (!borderless && value) {
         SetWindowLongPtr(win32_handle, GWL_STYLE,    m_borderless_wnd_style);
         SetWindowLongPtr(win32_handle, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(internals::window_context::internal_wndproc_callback_borderless));
 
         // Force window redraw
         SetWindowPos(win32_handle, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
     }
-    else if (m_borderless && !value) {
+    else if (borderless && !value) {
         SetWindowLongPtr(win32_handle, GWL_STYLE,    m_windowed_wnd_style);
         SetWindowLongPtr(win32_handle, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(internals::window_context::internal_wndproc_callback_windowed));
 
@@ -239,7 +241,7 @@ bool window_context::set_borderless(bool value) {
         return false;
     }
 
-    m_borderless = value;
+    LIBGUI_SET_FLAG(m_state, LIBGUI_WND_STATE_BORDERLESS, value);
     return true;
 }
 
@@ -247,10 +249,12 @@ bool window_context::set_resizable(bool value) {
     if (!m_glfw_handle)
         return false;
 
-    if (!m_resizable && value) {
+    bool resizable = is_resizable();
+
+    if (!resizable && value) {
         glfwSetWindowSizeLimits(m_glfw_handle, GLFW_DONT_CARE, GLFW_DONT_CARE, GLFW_DONT_CARE, GLFW_DONT_CARE);
     }
-    else if (m_resizable && !value) {
+    else if (resizable && !value) {
         int width  = 0U;
         int height = 0U;
 
@@ -261,7 +265,7 @@ bool window_context::set_resizable(bool value) {
         return false;
     }
 
-    m_resizable = value;
+    LIBGUI_SET_FLAG(m_state, LIBGUI_WND_STATE_RESIZABLE, value);
     return true;
 }
 
@@ -293,23 +297,23 @@ bool window_context::is_closing() const {
 }
 
 bool window_context::is_minimized_to_tb() const {
-    return m_minimized_to_tb;
+    return LIBGUI_HAS_FLAG(m_state, LIBGUI_WND_STATE_MINIMIZED_TO_TB);
 }
 
 bool window_context::is_minimized_to_st() const {
-    return m_minimized_to_st;
+    return LIBGUI_HAS_FLAG(m_state, LIBGUI_WND_STATE_MINIMIZED_TO_ST);
 }
 
 bool window_context::is_maximized() const {
-    return m_maximized;
+    return LIBGUI_HAS_FLAG(m_state, LIBGUI_WND_STATE_MAXIMIZED);
 }
 
 bool window_context::is_borderless() const {
-    return m_borderless;
+    return LIBGUI_HAS_FLAG(m_state, LIBGUI_WND_STATE_BORDERLESS);
 }
 
 bool window_context::is_resizable() const {
-    return m_resizable;
+    return LIBGUI_HAS_FLAG(m_state, LIBGUI_WND_STATE_RESIZABLE);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -426,17 +430,19 @@ bool window_context::internal_set_st_icon_visible(bool value) {
     if (!m_st_handle)
         return false;
 
-    if (!m_st_icon_visible && value) {
+    bool st_icon_visible = LIBGUI_HAS_FLAG(m_state, LIBGUI_WND_STATE_ST_ICON_VISIBLE);
+
+    if (!st_icon_visible && value) {
         Shell_NotifyIcon(NIM_ADD, m_st_handle);
     }
-    else if (m_st_icon_visible && !value) {
+    else if (st_icon_visible && !value) {
         Shell_NotifyIcon(NIM_DELETE, m_st_handle);
     }
     else {
         return false;
     }
 
-    m_st_icon_visible = value;
+    LIBGUI_SET_FLAG(m_state, LIBGUI_WND_STATE_ST_ICON_VISIBLE, value);
     return true;
 }
 
@@ -487,8 +493,8 @@ LRESULT window_context::internal_wndproc_callback_windowed(HWND handle, UINT msg
         //      Maximized/restored
         case WM_SIZE: {
             if (wparam == SIZE_MINIMIZED) {
-                if (!context->m_minimized_to_tb) {
-                    context->m_minimized_to_tb = true;
+                if (!context->is_minimized_to_tb()) {
+                    LIBGUI_SET_FLAG(context->m_state, LIBGUI_WND_STATE_MINIMIZED_TO_TB, true);
                     context->internal_dispatch_event<libgui::ev::ev_minimized>({});
                 }
             }
@@ -498,22 +504,22 @@ LRESULT window_context::internal_wndproc_callback_windowed(HWND handle, UINT msg
                 //
                 // When that happens, send an ev_minimize_restored event since
                 // the window was actually restored from taskbar and is already maximized.
-                if (context->m_minimized_to_tb) {
-                    context->m_minimized_to_tb = false;
+                if (context->is_minimized_to_tb()) {
+                    LIBGUI_SET_FLAG(context->m_state, LIBGUI_WND_STATE_MINIMIZED_TO_TB, false);
                     context->internal_enqueue_event<libgui::ev::ev_minimize_restored>({});
                 }
-                else if (!context->m_maximized) {
-                    context->m_maximized = true;
+                else if (!context->is_maximized()) {
+                    LIBGUI_SET_FLAG(context->m_state, LIBGUI_WND_STATE_MAXIMIZED, true);
                     context->internal_enqueue_event<libgui::ev::ev_maximized>({});
                 }
             }
             else if (wparam == SIZE_RESTORED) {
-                if (context->m_maximized) {
-                    context->m_maximized = false;
+                if (context->is_maximized()) {
+                    LIBGUI_SET_FLAG(context->m_state, LIBGUI_WND_STATE_MAXIMIZED, false);
                     context->internal_enqueue_event<libgui::ev::ev_maximize_restored>({});
                 }
-                else if (context->m_minimized_to_tb) {
-                    context->m_minimized_to_tb = false;
+                else if (context->is_minimized_to_tb()) {
+                    LIBGUI_SET_FLAG(context->m_state, LIBGUI_WND_STATE_MINIMIZED_TO_TB, false);
                     context->internal_enqueue_event<libgui::ev::ev_minimize_restored>({});
                 }
             }
@@ -530,12 +536,12 @@ LRESULT window_context::internal_wndproc_callback_windowed(HWND handle, UINT msg
 
             // Window was restored
             if (wparam) {
-                context->m_minimized_to_st = false;
+                LIBGUI_SET_FLAG(context->m_state, LIBGUI_WND_STATE_MINIMIZED_TO_ST, false);
                 context->internal_enqueue_event<libgui::ev::ev_minimize_restored>({});
             }
             // Window was minimized
             else {
-                context->m_minimized_to_st = true;
+                LIBGUI_SET_FLAG(context->m_state, LIBGUI_WND_STATE_MINIMIZED_TO_ST, true);
                 context->internal_dispatch_event<libgui::ev::ev_minimized>({});
             }
 
@@ -773,7 +779,7 @@ void window_context::internal_event_callback(const libgui::internals::ev::ev_upd
         set_maximized(true);
     }
     
-    if (event.settings.center_on_startup && !m_maximized) {
+    if (event.settings.center_on_startup && !is_maximized()) {
         glfwSetWindowMonitor(m_glfw_handle, NULL,
             (GetSystemMetrics(SM_CXSCREEN) / 2) - (event.settings.width / 2),
             (GetSystemMetrics(SM_CYSCREEN) / 2) - (event.settings.height / 2),
