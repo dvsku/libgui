@@ -171,6 +171,9 @@ namespace libgui::internals {
         void internal_initialize_event();
         void internal_teardown_event();
 
+        // Fire startup settings updated event
+        void internal_set_startup_settings(const window_settings& settings);
+
         // Show/hide window icon in system tray.
         // Return true if change was successful, false if no change occurred.
         bool internal_set_st_icon_visible(bool value);
@@ -187,6 +190,7 @@ namespace libgui::internals {
         void internal_event_callback(const libgui::internals::ev::ev_restore& event);
         void internal_event_callback(const libgui::internals::ev::ev_frame_buffer_resized& event);
         void internal_event_callback(const libgui::internals::ev::ev_update_settings& event);
+        void internal_event_callback(const libgui::internals::ev::ev_update_startup_settings& event);
 
     private:
         static void internal_glfw_window_resize_callback(GLFWwindow* window, int width, int height);

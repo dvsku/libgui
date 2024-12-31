@@ -19,4 +19,9 @@ namespace libgui::internals::ev {
     struct ev_update_settings : internal_event {
         window_settings settings = {};
     };
+
+    // Sent when startup settings need updating.
+    struct ev_update_startup_settings : internal_event {
+        window_settings settings = {};
+    };
 }

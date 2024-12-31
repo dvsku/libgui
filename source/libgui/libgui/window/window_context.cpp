@@ -93,25 +93,11 @@ bool window_context::initialize() {
     // Initialize system tray
     internal_initialize_st();
 
-    // Apply startup settings
-
-    if (m_settings.center_on_startup) {
-        glfwSetWindowMonitor(m_glfw_handle, NULL,
-            (GetSystemMetrics(SM_CXSCREEN) / 2) - (m_settings.width / 2),
-            (GetSystemMetrics(SM_CYSCREEN) / 2) - (m_settings.height / 2),
-            m_settings.width, m_settings.height, GLFW_DONT_CARE);
-    }
-
-    if (m_settings.maximize_on_startup) {
-        set_maximized(true);
-    }
-
-    if (m_settings.minimized_to_st_on_startup) {
-        set_minimize_to_st(true);
-    }
-
     // Apply standard settings
     set_settings(m_settings);
+
+    // Apply startup settings
+    internal_set_startup_settings(m_settings);
 
     return true;
 }
@@ -138,7 +124,10 @@ window_settings* window_context::get_settings() {
 }
 
 void window_context::set_settings(const window_settings& settings) {
+    libgui::internals::ev::ev_update_settings ev;
+    ev.settings = settings;
 
+    internal_enqueue_event(std::move(ev));
 }
 
 void window_context::event_poll() {
@@ -416,10 +405,21 @@ void window_context::internal_initialize_event() {
     internal_event_attach<libgui::internals::ev::ev_update_settings>([this](const auto& event) {
         internal_event_callback(event);
     });
+
+    internal_event_attach<libgui::internals::ev::ev_update_startup_settings>([this](const auto& event) {
+        internal_event_callback(event);
+    });
 }
 
 void window_context::internal_teardown_event() {
 
+}
+
+void window_context::internal_set_startup_settings(const window_settings& settings) {
+    ev::ev_update_startup_settings ev;
+    ev.settings = settings;
+
+    internal_enqueue_event(std::move(ev));
 }
 
 bool window_context::internal_set_st_icon_visible(bool value) {
@@ -766,6 +766,23 @@ void window_context::internal_event_callback(const libgui::internals::ev::ev_upd
     ev.settings = m_settings;
 
     internal_enqueue_event(std::move(ev));
+}
+
+void window_context::internal_event_callback(const libgui::internals::ev::ev_update_startup_settings& event) {
+    if (event.settings.maximize_on_startup) {
+        set_maximized(true);
+    }
+    
+    if (event.settings.center_on_startup && !m_maximized) {
+        glfwSetWindowMonitor(m_glfw_handle, NULL,
+            (GetSystemMetrics(SM_CXSCREEN) / 2) - (event.settings.width / 2),
+            (GetSystemMetrics(SM_CYSCREEN) / 2) - (event.settings.height / 2),
+            event.settings.width, event.settings.height, GLFW_DONT_CARE);
+    }
+
+    if (event.settings.minimized_to_st_on_startup) {
+        set_minimize_to_st(true);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
