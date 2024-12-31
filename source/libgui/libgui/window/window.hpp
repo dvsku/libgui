@@ -76,6 +76,7 @@ namespace libgui {
         void minimize_restore();
 
         // Maximize the window.
+        // Ignored if window is not resizable.
         void maximize();
 
         // Restore the window from maximized to windowed mode.

@@ -213,6 +213,9 @@ void window_context::set_maximized(bool value) {
     if (!m_glfw_handle)
         return;
 
+    if (!m_resizable)
+        return;
+
     if (!is_maximized() && value) {
         glfwMaximizeWindow(m_glfw_handle);
     }
