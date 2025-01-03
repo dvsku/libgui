@@ -1,5 +1,8 @@
 #include "libgui/window/window_context.hpp"
+#include "libgui/window/window_titlebar_internal.hpp"
 #include "libgui/global.hpp"
+#include "libgui/internals/win32.hpp"
+#include "libgui/internals/glfw.hpp"
 #include "libgui/exceptions/libgui_exception.hpp"
 
 #include <stdexcept>
@@ -12,22 +15,17 @@ using namespace libgui::internals;
 #define WM_USER_TRAYICON WM_USER + 1
 
 ///////////////////////////////////////////////////////////////////////////////
-// INTERNAL
-///////////////////////////////////////////////////////////////////////////////
-
-static std::string internal_get_glfw_failure();
-
-///////////////////////////////////////////////////////////////////////////////
 // PUBLIC
 
-window_context::window_context(window* window, const window_settings& settings)
+window_context::window_context(window* window, const window_settings& settings,
+    const window_startup_settings& startup_settings)
     : m_wnd(window), m_settings(settings)
 {
     global::backend.initialize();
 
-    m_glfw_handle = glfwCreateWindow(settings.width, settings.height, settings.title.c_str(), NULL, NULL);
+    m_glfw_handle = glfwCreateWindow(1, 1, settings.title.c_str(), NULL, NULL);
     if (!m_glfw_handle) {
-        LIBGUI_EXCEPTION_THROW("Failed to create window. | {}", internal_get_glfw_failure());
+        LIBGUI_EXCEPTION_THROW("Failed to create window. | {}", glfw::get_failure_desc());
     }
 
     auto win32_handle = get_win32_handle();
@@ -46,43 +44,14 @@ window_context::~window_context() {
     teardown();
 }
 
-bool window_context::initialize() {
-    if (!m_glfw_handle)
+bool window_context::initialize(const window_startup_settings& settings) {
+    if (!internal_initialize_glfw()) {
         return false;
+    }
 
-    auto win32_handle = get_win32_handle();
-    if (!win32_handle)
+    if (!internal_initialize_win32()) {
         return false;
-
-    // Save default callback
-    m_wndproc_default_callback = (WNDPROC)GetWindowLongPtr(win32_handle, GWLP_WNDPROC);
-    if (!m_wndproc_default_callback)
-        return false;
-
-    // Save standard style
-    m_windowed_wnd_style = GetWindowLongPtr(win32_handle, GWL_STYLE);
-
-    // Save borderless style
-    m_borderless_wnd_style = m_windowed_wnd_style;
-    m_borderless_wnd_style |= WS_OVERLAPPEDWINDOW;
-    m_borderless_wnd_style |= WS_CAPTION;
-    m_borderless_wnd_style |= WS_MAXIMIZEBOX;
-    m_borderless_wnd_style |= WS_THICKFRAME;
-    m_borderless_wnd_style |= CS_VREDRAW;
-    m_borderless_wnd_style |= CS_HREDRAW;
-
-    // Set to windowed
-    SetWindowLongPtr(win32_handle, GWL_STYLE,    m_windowed_wnd_style);
-    SetWindowLongPtr(win32_handle, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(internals::window_context::internal_wndproc_callback_windowed));
-
-    // Set GLFW callbacks
-
-    glfwSetWindowSizeCallback(m_glfw_handle, window_context::internal_glfw_window_resize_callback);
-    glfwSetFramebufferSizeCallback(m_glfw_handle, window_context::internal_glfw_frame_buffer_resize_callback);
-    glfwSetScrollCallback(m_glfw_handle, window_context::internal_glfw_scroll_callback);
-    glfwSetMouseButtonCallback(m_glfw_handle, window_context::internal_glfw_mouse_btn_callback);
-    glfwSetCursorPosCallback(m_glfw_handle, window_context::internal_glfw_mouse_move_callback);
-    glfwSetDropCallback(m_glfw_handle, window_context::internal_glfw_drop_callback);
+    }
 
     // Set event callbacks
     internal_initialize_event();
@@ -93,19 +62,26 @@ bool window_context::initialize() {
     // Initialize system tray
     internal_initialize_st();
 
+    // Apply startup settings
+    {
+        internals::ev::ev_update_startup_settings ev;
+        ev.settings = settings;
+
+        internal_event_enqueue(std::move(ev));
+    }
+
     // Apply standard settings
     set_settings(m_settings);
-
-    // Apply startup settings
-    internal_set_startup_settings(m_settings);
 
     return true;
 }
 
 void window_context::teardown() {
-    internal_teardown_event();
-    internal_teardown_tb();
     internal_teardown_st();
+    internal_teardown_tb();
+    internal_teardown_event();
+    internal_teardown_win32();
+    internal_teardown_glfw();
 }
 
 GLFWwindow* window_context::get_glfw_handle() {
@@ -127,7 +103,7 @@ void window_context::set_settings(const window_settings& settings) {
     libgui::internals::ev::ev_update_settings ev;
     ev.settings = settings;
 
-    internal_enqueue_event(std::move(ev));
+    internal_event_enqueue(std::move(ev));
 }
 
 void window_context::event_poll() {
@@ -213,38 +189,6 @@ void window_context::set_maximized(bool value) {
     }
 }
 
-bool window_context::set_borderless(bool value) {
-    if (!m_glfw_handle)
-        return false;
-
-    auto win32_handle = get_win32_handle();
-    if (!win32_handle)
-        return false;
-
-    bool borderless = is_borderless();
-
-    if (!borderless && value) {
-        SetWindowLongPtr(win32_handle, GWL_STYLE,    m_borderless_wnd_style);
-        SetWindowLongPtr(win32_handle, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(internals::window_context::internal_wndproc_callback_borderless));
-
-        // Force window redraw
-        SetWindowPos(win32_handle, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
-    }
-    else if (borderless && !value) {
-        SetWindowLongPtr(win32_handle, GWL_STYLE,    m_windowed_wnd_style);
-        SetWindowLongPtr(win32_handle, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(internals::window_context::internal_wndproc_callback_windowed));
-
-        // Force window redraw
-        SetWindowPos(win32_handle, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
-    }
-    else {
-        return false;
-    }
-
-    LIBGUI_SET_FLAG(m_state, LIBGUI_WND_STATE_BORDERLESS, value);
-    return true;
-}
-
 bool window_context::set_resizable(bool value) {
     if (!m_glfw_handle)
         return false;
@@ -308,10 +252,6 @@ bool window_context::is_maximized() const {
     return LIBGUI_HAS_FLAG(m_state, LIBGUI_WND_STATE_MAXIMIZED);
 }
 
-bool window_context::is_borderless() const {
-    return LIBGUI_HAS_FLAG(m_state, LIBGUI_WND_STATE_BORDERLESS);
-}
-
 bool window_context::is_resizable() const {
     return LIBGUI_HAS_FLAG(m_state, LIBGUI_WND_STATE_RESIZABLE);
 }
@@ -319,6 +259,53 @@ bool window_context::is_resizable() const {
 ///////////////////////////////////////////////////////////////////////////////
 // PRIVATE
 ///////////////////////////////////////////////////////////////////////////////
+
+bool window_context::internal_initialize_win32() {
+    auto win32_handle = get_win32_handle();
+    if (!win32_handle)
+        return false;
+
+    // Save default callback
+    m_default_wndproc_callback = (WNDPROC)GetWindowLongPtr(win32_handle, GWLP_WNDPROC);
+    if (!m_default_wndproc_callback)
+        return false;
+
+    //auto a = win32::get_frameless_style();
+
+    // Configure Win32 style parameters
+    auto win32_style = GetWindowLongPtr(win32_handle, GWL_STYLE);
+    LIBGUI_SET_FLAG(win32_style, WS_OVERLAPPEDWINDOW, true);
+
+    // Change Win32 parameters
+    SetWindowLongPtr(win32_handle, GWL_STYLE,    win32_style);
+    SetWindowLongPtr(win32_handle, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(internals::window_context::internal_wndproc_callback));
+
+    return true;
+}
+
+void window_context::internal_teardown_win32() {
+
+}
+
+bool window_context::internal_initialize_glfw() {
+    if (!m_glfw_handle)
+        return false;
+
+    // Set GLFW callbacks
+
+    glfwSetWindowSizeCallback(m_glfw_handle, window_context::internal_glfw_window_resize_callback);
+    glfwSetFramebufferSizeCallback(m_glfw_handle, window_context::internal_glfw_frame_buffer_resize_callback);
+    glfwSetScrollCallback(m_glfw_handle, window_context::internal_glfw_scroll_callback);
+    glfwSetMouseButtonCallback(m_glfw_handle, window_context::internal_glfw_mouse_btn_callback);
+    glfwSetCursorPosCallback(m_glfw_handle, window_context::internal_glfw_mouse_move_callback);
+    glfwSetDropCallback(m_glfw_handle, window_context::internal_glfw_drop_callback);
+
+    return true;
+}
+
+void window_context::internal_teardown_glfw() {
+
+}
 
 void window_context::internal_initialize_st() {
     if (m_st_handle || !m_glfw_handle || !m_wnd)
@@ -419,11 +406,21 @@ void window_context::internal_teardown_event() {
 
 }
 
-void window_context::internal_set_startup_settings(const window_settings& settings) {
-    ev::ev_update_startup_settings ev;
-    ev.settings = settings;
+void window_context::internal_startup_set_resizable(bool value, const libgui::size_i& current, const libgui::size_i& minimum) {
+    if (value) {
+        m_minimum_size.width  = minimum.width;
+        m_minimum_size.height = minimum.height;
+        m_maximum_size.width  = -1;
+        m_maximum_size.height = -1;
+    }
+    else {
+        m_minimum_size.width  = current.width;
+        m_minimum_size.height = current.height;
+        m_maximum_size.width  = current.width;
+        m_maximum_size.height = current.height;
+    }
 
-    internal_enqueue_event(std::move(ev));
+    LIBGUI_SET_FLAG(m_state, LIBGUI_WND_STATE_RESIZABLE, value);
 }
 
 bool window_context::internal_set_st_icon_visible(bool value) {
@@ -449,9 +446,9 @@ bool window_context::internal_set_st_icon_visible(bool value) {
 ///////////////////////////////////////////////////////////////////////////////
 // WNDPROC
 
-LRESULT window_context::internal_wndproc_callback_windowed(HWND handle, UINT msg, WPARAM wparam, LPARAM lparam) {
+LRESULT window_context::internal_wndproc_callback(HWND handle, UINT msg, WPARAM wparam, LPARAM lparam) {
     window_context* context = (window_context*)GetWindowLongPtr(handle, GWLP_USERDATA);
-    if (!context) {
+    if (!context || !context->m_wnd) {
         return 0;
     }
 
@@ -464,235 +461,341 @@ LRESULT window_context::internal_wndproc_callback_windowed(HWND handle, UINT msg
         //      Requested to restore from taskbar
         //
         // These events override default window behavior.
-        case WM_SYSCOMMAND: {
-            if (wparam == SC_CLOSE) {
-                context->internal_enqueue_event<libgui::ev::ev_close>({});
-                return 0;
-            }
-
-            if (wparam == SC_MINIMIZE) {
-                context->internal_enqueue_event<libgui::ev::ev_minimize>({});
-                return 0;
-            }
-
-            if (wparam == SC_MAXIMIZE) {
-                context->internal_enqueue_event<libgui::ev::ev_maximize>({});
-                return 0;
-            }
-
-            if (wparam == SC_RESTORE) {
-                context->internal_dispatch_event<libgui::internals::ev::ev_restore>({});
-                return 0;
-            }
-            
-            break;
-        }
+        case WM_SYSCOMMAND: return context->internal_wndproc_wmsyscommand(wparam, lparam);
 
         // Handle events when window was:
         //      Minimized/restored to/from taskbar
         //      Maximized/restored
-        case WM_SIZE: {
-            if (wparam == SIZE_MINIMIZED) {
-                if (!context->is_minimized_to_tb()) {
-                    LIBGUI_SET_FLAG(context->m_state, LIBGUI_WND_STATE_MINIMIZED_TO_TB, true);
-                    context->internal_dispatch_event<libgui::ev::ev_minimized>({});
-                }
-            }
-            else if (wparam == SIZE_MAXIMIZED) {
-                // If a maximized window is minimized to taskbar and is restored
-                // from the taskbar, Win32 API sends a SIZE_MAXIMIZED message.
-                //
-                // When that happens, send an ev_minimize_restored event since
-                // the window was actually restored from taskbar and is already maximized.
-                if (context->is_minimized_to_tb()) {
-                    LIBGUI_SET_FLAG(context->m_state, LIBGUI_WND_STATE_MINIMIZED_TO_TB, false);
-                    context->internal_enqueue_event<libgui::ev::ev_minimize_restored>({});
-                }
-                else if (!context->is_maximized()) {
-                    LIBGUI_SET_FLAG(context->m_state, LIBGUI_WND_STATE_MAXIMIZED, true);
-                    context->internal_enqueue_event<libgui::ev::ev_maximized>({});
-                }
-            }
-            else if (wparam == SIZE_RESTORED) {
-                if (context->is_maximized()) {
-                    LIBGUI_SET_FLAG(context->m_state, LIBGUI_WND_STATE_MAXIMIZED, false);
-                    context->internal_enqueue_event<libgui::ev::ev_maximize_restored>({});
-                }
-                else if (context->is_minimized_to_tb()) {
-                    LIBGUI_SET_FLAG(context->m_state, LIBGUI_WND_STATE_MINIMIZED_TO_TB, false);
-                    context->internal_enqueue_event<libgui::ev::ev_minimize_restored>({});
-                }
-            }
-
-            break;
-        }
+        case WM_SIZE: return context->internal_wndproc_wmsize(wparam, lparam);
 
         // Handle events when window was:
         //      Minimized/restored to/from system tray
-        case WM_SHOWWINDOW: {
-            // If call wasn't because of ShowWindow(), do default
-            if (lparam != 0)
-                break;
-
-            // Window was restored
-            if (wparam) {
-                LIBGUI_SET_FLAG(context->m_state, LIBGUI_WND_STATE_MINIMIZED_TO_ST, false);
-                context->internal_enqueue_event<libgui::ev::ev_minimize_restored>({});
-            }
-            // Window was minimized
-            else {
-                LIBGUI_SET_FLAG(context->m_state, LIBGUI_WND_STATE_MINIMIZED_TO_ST, true);
-                context->internal_dispatch_event<libgui::ev::ev_minimized>({});
-            }
-
-            break;
-        }
+        case WM_SHOWWINDOW: return context->internal_wndproc_wmshowwindow(wparam, lparam);
 
         // Handle events when window was:
         //      Requested to restore from system tray
-        case WM_USER_TRAYICON: {
-            if (lparam == WM_LBUTTONDOWN) {
-                context->internal_dispatch_event<libgui::internals::ev::ev_restore>({});
-            }
+        case WM_USER_TRAYICON: return context->internal_wndproc_wmusertrayicon(wparam, lparam);
 
-            break;
-        }
+        // Handle NC frame size
+        case WM_NCCALCSIZE: return context->internal_wndproc_wmnccalcsize(wparam, lparam);
 
-        default: break;
-    }
+        // Handle custom titlebar hit testing
+        // Handle resize area hit testing
+        case WM_NCHITTEST: return context->internal_wndproc_wmnchittest(wparam, lparam);
 
-    return CallWindowProc(context->m_wndproc_default_callback, handle, msg, wparam, lparam);
-}
+        // Handle size constraints
+        // Handle maximize size
+        case WM_GETMINMAXINFO: return context->internal_wndproc_wmgetminmaxinfo(wparam, lparam);
 
-LRESULT window_context::internal_wndproc_callback_borderless(HWND handle, UINT msg, WPARAM wparam, LPARAM lparam) {
-    window* wnd = (window*)GetWindowLongPtr(handle, GWLP_USERDATA);
-    if (!wnd) {
-        return 0;
-    }
-
-    window_context* context = wnd->m_context.get();
-    if (!context) {
-        return 0;
-    }
-
-    switch (msg) {
-        case WM_NCCALCSIZE: {
-            NCCALCSIZE_PARAMS* params = reinterpret_cast<NCCALCSIZE_PARAMS*>(lparam);
-
-            WINDOWPLACEMENT wp = {};
-            wp.length          = sizeof(WINDOWPLACEMENT);
-            GetWindowPlacement(handle, &wp);
-
-            if (wparam == TRUE && params) {
-                if (wp.showCmd == SW_SHOWMAXIMIZED) {
-                    params->rgrc[0].top    += 8;
-                    params->rgrc[0].right  -= 8;
-                    params->rgrc[0].bottom -= 8;
-                    params->rgrc[0].left   += 8;
-                    return 0;
-                }
-
-                params->rgrc[0].top    += 1;
-                params->rgrc[0].right  -= 1;
-                params->rgrc[0].bottom -= 1;
-                params->rgrc[0].left   += 1;
-            }
-
-            return 0;
-        }
-        case WM_NCPAINT: {
-            break;
-        }
-        case WM_NCHITTEST: {
-            LRESULT def_result = CallWindowProc(context->m_wndproc_default_callback, handle, msg, wparam, lparam);
-            auto    titlebar   = wnd->get_titlebar();
-            
-            // Handle custom titlebar hit testing
-            if (titlebar) {
-                POINTS       mouse_pos        = MAKEPOINTS(lparam);
-                POINT        client_mouse_pos = { mouse_pos.x, mouse_pos.y };
-                ImGuiWindow* modal            = ImGui::GetTopMostAndVisiblePopupModal();
-
-                ScreenToClient(handle, &client_mouse_pos);
-
-                if (titlebar->mouseover_maximize_button)
-                    return HTMAXBUTTON;
-
-                if (!modal && !titlebar->m_skip_hit_testing && titlebar->mouseover_titlebar)
-                    return HTCAPTION;
-            }
-
-            if (!context->m_resizable) {
-                switch (def_result) {
-                    case HTBOTTOM:
-                    case HTBOTTOMLEFT:
-                    case HTBOTTOMRIGHT:
-                    case HTLEFT:
-                    case HTRIGHT:
-                    case HTTOP:
-                    case HTTOPLEFT:
-                    case HTTOPRIGHT:
-                        return HTCLIENT;
-                    default: break;
-                }
-            }
-
-            return def_result;
-        }
-        case WM_NCACTIVATE: {
-            return TRUE;
-        }
-        case WM_GETMINMAXINFO: {
-            MINMAXINFO* min_max = (MINMAXINFO*)lparam;
-
-            // Get information about the monitor
-            HMONITOR monitor = MonitorFromWindow(handle, MONITOR_DEFAULTTONEAREST);
-
-            MONITORINFO monitor_info = {};
-            monitor_info.cbSize      = sizeof(MONITORINFO);
-            GetMonitorInfo(monitor, &monitor_info);
-
-            // Set the maximum size based on monitor information
-            min_max->ptMaxTrackSize.x = monitor_info.rcWork.right  - monitor_info.rcWork.left;
-            min_max->ptMaxTrackSize.y = monitor_info.rcWork.bottom - monitor_info.rcWork.top;
-            min_max->ptMaxPosition.x  = 0;
-            min_max->ptMaxPosition.y  = 0;
-
-            break;
-        }
-        case WM_NCLBUTTONDOWN: {
-            if (wparam == HTMAXBUTTON)
-                return 0;
-
-            if (wparam == HTCAPTION)
-                ImGui::ClosePopupsExceptModals();
-
-            break;
-        }
-        case WM_NCLBUTTONUP: {
-            switch (wparam) {
-                case HTMAXBUTTON: {
-                    context->set_maximized(!context->is_maximized());
-                    return 0;
-                }
-
-                default: break;
-            }
-
-            break;
-        }
-        case WM_USER_TRAYICON: {
-            if (lparam == WM_LBUTTONDOWN) {
-                context->internal_restore_from_st();
-            }
-            break;
-        }
+        // Handle close, maximize, minimize button down events
+        case WM_NCLBUTTONDOWN: return context->internal_wndproc_wmnclbuttondown(wparam, lparam);
+        
+        // Handle close, maximize, minimize button up events
+        case WM_NCLBUTTONUP: return context->internal_wndproc_wmnclbuttonup(wparam, lparam);
 
         default: break;
     }
 
-    return CallWindowProc(context->m_wndproc_default_callback, handle, msg, wparam, lparam);
+    return CallWindowProc(context->m_default_wndproc_callback, handle, msg, wparam, lparam);;
 }
+
+LRESULT window_context::internal_wndproc_wmsyscommand(WPARAM wparam, LPARAM lparam) {
+    // Handle close command
+    if (wparam == SC_CLOSE) {
+        internal_event_enqueue<libgui::ev::ev_close>({});
+        return 0;
+    }
+
+    // Handle minimize command
+    if (wparam == SC_MINIMIZE) {
+        internal_event_enqueue<libgui::ev::ev_minimize>({});
+        return 0;
+    }
+
+    // Handle maximize command
+    if (wparam == SC_MAXIMIZE) {
+        internal_event_enqueue<libgui::ev::ev_maximize>({});
+        return 0;
+    }
+
+    // Handle restore from maximize/taskbar command
+    if (wparam == SC_RESTORE) {
+        internal_event_dispatch<libgui::internals::ev::ev_restore>({});
+        return 0;
+    }
+
+    return CallWindowProc(m_default_wndproc_callback, get_win32_handle(), WM_SYSCOMMAND, wparam, lparam);
+}
+
+LRESULT window_context::internal_wndproc_wmsize(WPARAM wparam, LPARAM lparam) {
+    if (wparam == SIZE_MINIMIZED) {
+        if (!is_minimized_to_tb()) {
+            LIBGUI_SET_FLAG(m_state, LIBGUI_WND_STATE_MINIMIZED_TO_TB, true);
+            internal_event_dispatch<libgui::ev::ev_minimized>({});
+        }
+    }
+    else if (wparam == SIZE_MAXIMIZED) {
+        // If a maximized window is minimized to taskbar and is restored
+        // from the taskbar, Win32 API sends a SIZE_MAXIMIZED message.
+        //
+        // When that happens, send an ev_minimize_restored event since
+        // the window was actually restored from taskbar and is already maximized.
+        if (is_minimized_to_tb()) {
+            LIBGUI_SET_FLAG(m_state, LIBGUI_WND_STATE_MINIMIZED_TO_TB, false);
+            internal_event_enqueue<libgui::ev::ev_minimize_restored>({});
+        }
+        else if (!is_maximized()) {
+            LIBGUI_SET_FLAG(m_state, LIBGUI_WND_STATE_MAXIMIZED, true);
+            internal_event_enqueue<libgui::ev::ev_maximized>({});
+        }
+    }
+    else if (wparam == SIZE_RESTORED) {
+        if (is_maximized()) {
+            LIBGUI_SET_FLAG(m_state, LIBGUI_WND_STATE_MAXIMIZED, false);
+            internal_event_enqueue<libgui::ev::ev_maximize_restored>({});
+        }
+        else if (is_minimized_to_tb()) {
+            LIBGUI_SET_FLAG(m_state, LIBGUI_WND_STATE_MINIMIZED_TO_TB, false);
+            internal_event_enqueue<libgui::ev::ev_minimize_restored>({});
+        }
+    }
+
+    return CallWindowProc(m_default_wndproc_callback, get_win32_handle(), WM_SIZE, wparam, lparam);
+}
+
+LRESULT window_context::internal_wndproc_wmshowwindow(WPARAM wparam, LPARAM lparam) {
+    // If call was because of ShowWindow()
+    if (!lparam) {
+        // Window was restored
+        if (wparam) {
+            LIBGUI_SET_FLAG(m_state, LIBGUI_WND_STATE_MINIMIZED_TO_ST, false);
+            internal_event_enqueue<libgui::ev::ev_minimize_restored>({});
+        }
+        // Window was minimized
+        else {
+            LIBGUI_SET_FLAG(m_state, LIBGUI_WND_STATE_MINIMIZED_TO_ST, true);
+            internal_event_dispatch<libgui::ev::ev_minimized>({});
+        }
+    }
+
+    return CallWindowProc(m_default_wndproc_callback, get_win32_handle(), WM_SHOWWINDOW, wparam, lparam);
+}
+
+LRESULT window_context::internal_wndproc_wmusertrayicon(WPARAM wparam, LPARAM lparam) {
+    if (lparam == WM_LBUTTONDOWN) {
+        internal_event_dispatch<libgui::internals::ev::ev_restore>({});
+    }
+
+    return CallWindowProc(m_default_wndproc_callback, get_win32_handle(), WM_USER_TRAYICON, wparam, lparam);
+}
+
+LRESULT window_context::internal_wndproc_wmnccalcsize(WPARAM wparam, LPARAM lparam) {
+    if (!wparam) {
+        return 0;
+    }
+
+    NCCALCSIZE_PARAMS* params = reinterpret_cast<NCCALCSIZE_PARAMS*>(lparam);
+    if (!params) {
+        return CallWindowProc(m_default_wndproc_callback, get_win32_handle(), WM_NCCALCSIZE, wparam, lparam);
+    }
+
+    auto win32_handle = get_win32_handle();
+    if (!win32_handle) {
+        return CallWindowProc(m_default_wndproc_callback, get_win32_handle(), WM_NCCALCSIZE, wparam, lparam);
+    }
+
+    WINDOWPLACEMENT wp = {};
+    wp.length = sizeof(WINDOWPLACEMENT);
+
+    if (!GetWindowPlacement(win32_handle, &wp)) {
+        return CallWindowProc(m_default_wndproc_callback, get_win32_handle(), WM_NCCALCSIZE, wparam, lparam);
+    }
+
+    auto nc_size = win32::get_window_nc_size(win32_handle, wp.showCmd == SW_MAXIMIZE);
+
+    params->rgrc[0].top    += nc_size.top;
+    params->rgrc[0].right  -= nc_size.right;
+    params->rgrc[0].bottom -= nc_size.bottom;
+    params->rgrc[0].left   += nc_size.left;
+
+    return 0;
+}
+
+LRESULT window_context::internal_wndproc_wmnchittest(WPARAM wparam, LPARAM lparam) {
+    LRESULT def_result = CallWindowProc(m_default_wndproc_callback, get_win32_handle(), WM_NCHITTEST, wparam, lparam);
+    auto    flags      = m_wnd->m_titlebar_flags;
+    
+    // Title bar hit testing
+
+    if (LIBGUI_HAS_FLAG(flags, LIBGUI_WTB_MO_MINIMIZE))
+        return HTMINBUTTON;
+
+    if (LIBGUI_HAS_FLAG(flags, LIBGUI_WTB_MO_MAXIMIZE))
+        return HTMAXBUTTON;
+
+    if (LIBGUI_HAS_FLAG(flags, LIBGUI_WTB_MO_CLOSE))
+        return HTCLOSE;
+
+    if (!LIBGUI_HAS_FLAG(flags, LIBGUI_WTB_SKIP) && LIBGUI_HAS_FLAG(flags, LIBGUI_WTB_MO_TB))
+        return HTCAPTION;
+
+    // Disable resize areas if window is not resizable
+    if (!is_resizable()) {
+        switch (def_result) {
+            case HTBOTTOM:
+            case HTBOTTOMLEFT:
+            case HTBOTTOMRIGHT:
+            case HTLEFT:
+            case HTRIGHT:
+            case HTTOP:
+            case HTTOPLEFT:
+            case HTTOPRIGHT:
+                return HTCLIENT;
+            default: break;
+        }
+    }
+
+    return def_result;
+}
+
+LRESULT window_context::internal_wndproc_wmgetminmaxinfo(WPARAM wparam, LPARAM lparam) {
+    auto win32_handle = get_win32_handle();
+    if (!win32_handle) {
+        return 0;
+    }
+    
+    // Get default values
+    auto def_result = CallWindowProc(m_default_wndproc_callback, win32_handle, WM_GETMINMAXINFO, wparam, lparam);
+
+    MINMAXINFO* minmax = (MINMAXINFO*)lparam;
+    if (!minmax) {
+        return def_result;
+    }
+
+    // Get PRIMARY monitor
+    // PRIMARY monitor's top left is always at 0,0
+    auto mon_primary = MonitorFromPoint({ 0, 0 }, MONITOR_DEFAULTTOPRIMARY);
+
+    // Get CURRENT monitor
+    auto mon_current = MonitorFromWindow(win32_handle, MONITOR_DEFAULTTONEAREST);
+
+    if (!mon_primary || !mon_current) {
+        return def_result;
+    }
+
+    // Get monitor infos
+
+    MONITORINFO mon_info_primary = {};
+    MONITORINFO mon_info_current = {};
+    mon_info_primary.cbSize = sizeof(MONITORINFO);
+    mon_info_current.cbSize = sizeof(MONITORINFO);
+
+    if (!GetMonitorInfo(mon_primary, &mon_info_primary)) {
+        return def_result;
+    }
+
+    if (!GetMonitorInfo(mon_current, &mon_info_current)) {
+        return def_result;
+    }
+
+    // Get NC frame size
+    auto nc_frame = win32::get_window_nc_size(win32_handle, true);
+
+    // Set max position so that the NC frame is not visible
+    minmax->ptMaxPosition.x = -nc_frame.left;
+    minmax->ptMaxPosition.y = -nc_frame.top;
+
+    // Max size is set based on the PRIMARY monitor
+    // Resizing for other monitors is done automatically by the window manager
+    // Extend max size so that client area fills the screen
+
+    // Extend by left and right NC size
+    minmax->ptMaxSize.x = mon_info_primary.rcWork.right + nc_frame.left + nc_frame.right;
+    // Extend by top and bottom NC size
+    minmax->ptMaxSize.y = mon_info_primary.rcWork.bottom + nc_frame.top + nc_frame.bottom;    
+
+    // Max manual resize size is set based on the CURRENT monitor
+
+    // Extend by left and right NC size
+    minmax->ptMaxTrackSize.x = mon_info_current.rcWork.right + nc_frame.left + nc_frame.right;
+    // Extend by top and bottom NC size
+    minmax->ptMaxTrackSize.y = mon_info_current.rcWork.bottom + nc_frame.top + nc_frame.bottom;
+
+    /*minmax->ptMinTrackSize.x = context->m_settings.min_width;
+    minmax->ptMinTrackSize.y = context->m_settings.min_height;*/
+
+    return 0;
+}
+
+LRESULT window_context::internal_wndproc_wmnclbuttondown(WPARAM wparam, LPARAM lparam) {
+    auto& flags = m_wnd->m_titlebar_flags;
+
+    if (wparam == HTMINBUTTON) {
+        LIBGUI_SET_FLAG(flags, LIBGUI_WTB_LDOWN_MINIMIZE, true);
+        return 0;
+    }
+
+    if (wparam == HTMAXBUTTON) {
+        LIBGUI_SET_FLAG(flags, LIBGUI_WTB_LDOWN_MAXIMIZE, true);
+        return 0;
+    }
+
+    if (wparam == HTCLOSE) {
+        LIBGUI_SET_FLAG(flags, LIBGUI_WTB_LDOWN_CLOSE, true);
+        return 0;
+    }
+
+    if (wparam == HTCAPTION) {
+        ImGui::ClosePopupsExceptModals();
+    }
+
+    return CallWindowProc(m_default_wndproc_callback, get_win32_handle(), WM_NCLBUTTONDOWN, wparam, lparam);
+}
+
+LRESULT window_context::internal_wndproc_wmnclbuttonup(WPARAM wparam, LPARAM lparam) {
+    auto& flags = m_wnd->m_titlebar_flags;
+
+    if (wparam == HTMINBUTTON) {
+        if (LIBGUI_HAS_FLAG(flags, LIBGUI_WTB_LDOWN_MINIMIZE)) {
+            LIBGUI_SET_FLAG(flags, LIBGUI_WTB_LDOWN_MINIMIZE, false);
+
+            internal_event_enqueue<libgui::ev::ev_minimize>({});
+        }
+
+        return 0;
+    }
+
+    if (wparam == HTMAXBUTTON) {
+        if (LIBGUI_HAS_FLAG(flags, LIBGUI_WTB_LDOWN_MAXIMIZE)) {
+            LIBGUI_SET_FLAG(flags, LIBGUI_WTB_LDOWN_MAXIMIZE, false);
+
+            if (!is_maximized()) {
+                internal_event_enqueue<libgui::ev::ev_maximize>({});
+            }
+            else {
+                internal_event_enqueue<libgui::ev::ev_maximize_restore>({});
+            }
+        }
+
+        return 0;
+    }
+
+    if (wparam == HTCLOSE) {
+        if (LIBGUI_HAS_FLAG(flags, LIBGUI_WTB_LDOWN_CLOSE)) {
+            LIBGUI_SET_FLAG(flags, LIBGUI_WTB_LDOWN_CLOSE, false);
+
+            internal_event_enqueue<libgui::ev::ev_close>({});
+        }
+
+        return 0;
+    }
+
+    LIBGUI_SET_FLAG(flags, LIBGUI_WTB_LDOWN_ALL, false);
+    return CallWindowProc(m_default_wndproc_callback, get_win32_handle(), WM_NCLBUTTONUP, wparam, lparam);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// EVENT CALLBACKS
 
 void window_context::internal_event_callback(const libgui::ev::ev_close& event) {
     if (!m_wnd) return;
@@ -740,11 +843,11 @@ void window_context::internal_event_callback(const libgui::internals::ev::ev_res
     if (!m_wnd || !m_glfw_handle) return;
 
     if (is_minimized_to_tb() || is_minimized_to_st()) {
-        return internal_dispatch_event<libgui::ev::ev_minimize_restore>({});
+        return internal_event_dispatch<libgui::ev::ev_minimize_restore>({});
     }
 
     if (is_maximized()) {
-        return internal_enqueue_event<libgui::ev::ev_maximize_restore>({});
+        return internal_event_enqueue<libgui::ev::ev_maximize_restore>({});
     }
 
     // Fallback
@@ -758,35 +861,67 @@ void window_context::internal_event_callback(const libgui::internals::ev::ev_fra
 void window_context::internal_event_callback(const libgui::internals::ev::ev_update_settings& event) {
     m_settings = event.settings;
     
-    set_borderless(event.settings.borderless);
-    set_resizable(event.settings.resizable);
-
-    // Sync settings with current state
-
-    m_settings.borderless = is_borderless();
-    m_settings.resizable  = is_resizable();
 
     // Fire settings updated event
 
     libgui::ev::ev_settings_updated ev;
     ev.settings = m_settings;
 
-    internal_enqueue_event(std::move(ev));
+    internal_event_enqueue(std::move(ev));
 }
 
 void window_context::internal_event_callback(const libgui::internals::ev::ev_update_startup_settings& event) {
-    if (event.settings.maximize_on_startup) {
-        set_maximized(true);
+    auto win32_handle = get_win32_handle();
+    if (!win32_handle) {
+        return;
     }
     
-    if (event.settings.center_on_startup && !is_maximized()) {
-        glfwSetWindowMonitor(m_glfw_handle, NULL,
-            (GetSystemMetrics(SM_CXSCREEN) / 2) - (event.settings.width / 2),
-            (GetSystemMetrics(SM_CYSCREEN) / 2) - (event.settings.height / 2),
-            event.settings.width, event.settings.height, GLFW_DONT_CARE);
+    auto dpi = win32::get_window_dpi_scaling(win32_handle);
+    auto nc  = win32::get_window_nc_size(win32_handle, false);
+
+    // Convert client area sizes to window sizes.
+    // Window sizes contain the NC frame.
+
+    libgui::size_i size         = event.settings.size;
+    libgui::size_i minimum_size = event.settings.minimum_size;
+
+    size.scale(dpi);
+
+    size.width  += nc.left + nc.right;
+    size.height += nc.top  + nc.bottom;
+
+    if (minimum_size.width > 0) {
+        minimum_size.width =  static_cast<int32_t>(minimum_size.width * dpi);
+        minimum_size.width += nc.left + nc.right;
+
+        size.width = max(size.width, minimum_size.width);
     }
 
-    if (event.settings.minimized_to_st_on_startup) {
+    if (minimum_size.height > 0) {
+        minimum_size.height  = static_cast<int32_t>(minimum_size.height * dpi);
+        minimum_size.height += nc.top + nc.bottom;
+
+        size.height = max(size.height, minimum_size.height);
+    }
+
+    // Set window size
+    win32::set_window_size(win32_handle, size);
+
+    // Handle size constraints and resizable
+    internal_startup_set_resizable(event.settings.resizable, size, minimum_size);
+
+    // Handle maximized
+    if (event.settings.maximized) {
+        set_maximized(true);
+    }
+
+    // Handle centered
+    if (event.settings.centered && !is_maximized()) {
+        win32::set_window_pos_relative(win32_handle, { 0.5f, 0.5f }, { 0.5f, 0.5f });
+    }
+
+    // Handle minimized to system tray
+    if (event.settings.minimized_to_st) {
         set_minimize_to_st(true);
     }
 }
@@ -804,7 +939,7 @@ void window_context::internal_glfw_window_resize_callback(GLFWwindow* window, in
     ev.width  = width;
     ev.height = height;
 
-    context->internal_enqueue_event(std::move(ev));
+    context->internal_event_enqueue(std::move(ev));
 }
 
 void window_context::internal_glfw_frame_buffer_resize_callback(GLFWwindow* window, int width, int height)
@@ -817,7 +952,7 @@ void window_context::internal_glfw_frame_buffer_resize_callback(GLFWwindow* wind
     ev.width  = width;
     ev.height = height;
 
-    context->internal_enqueue_event(std::move(ev));
+    context->internal_event_enqueue(std::move(ev));
 }
 
 void window_context::internal_glfw_scroll_callback(GLFWwindow* window, double dx, double dy)
@@ -830,7 +965,7 @@ void window_context::internal_glfw_scroll_callback(GLFWwindow* window, double dx
     ev.dx = dx;
     ev.dy = dy;
 
-    context->internal_enqueue_event(std::move(ev));
+    context->internal_event_enqueue(std::move(ev));
 }
 
 void window_context::internal_glfw_mouse_btn_callback(GLFWwindow* window, int btn, int state, int mod)
@@ -844,7 +979,7 @@ void window_context::internal_glfw_mouse_btn_callback(GLFWwindow* window, int bt
     ev.state = state;
     ev.mod   = mod;
 
-    context->internal_enqueue_event(std::move(ev));
+    context->internal_event_enqueue(std::move(ev));
 }
 
 void window_context::internal_glfw_mouse_move_callback(GLFWwindow* window, double x, double y)
@@ -857,7 +992,7 @@ void window_context::internal_glfw_mouse_move_callback(GLFWwindow* window, doubl
     ev.x = x;
     ev.y = y;
 
-    context->internal_enqueue_event(std::move(ev));
+    context->internal_event_enqueue(std::move(ev));
 }
 
 void window_context::internal_glfw_drop_callback(GLFWwindow* window, int count, const char* files[])
@@ -872,14 +1007,5 @@ void window_context::internal_glfw_drop_callback(GLFWwindow* window, int count, 
         ev.files.push_back(files[i]);
     }
 
-    context->internal_enqueue_event(std::move(ev));
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// INTERNAL
-///////////////////////////////////////////////////////////////////////////////
-
-std::string internal_get_glfw_failure() {
-    const char* desc = nullptr;
-    return glfwGetError(&desc) != GLFW_NO_ERROR && desc ? std::string(desc) : "";
+    context->internal_event_enqueue(std::move(ev));
 }

@@ -32,20 +32,20 @@ using namespace libgui;
 ///////////////////////////////////////////////////////////////////////////////
 // PUBLIC
 
-window::window(const window_settings& settings) {
+window::window(const window_settings& settings, const window_startup_settings& startup_settings) {
     // Create context
-    m_context = std::make_unique<internals::window_context>(this, settings);
+    m_context = std::make_unique<internals::window_context>(this, settings, startup_settings);
     if (!m_context) {
         LIBGUI_EXCEPTION_THROW("Failed to create context.");
     }
 
     // Initialize context
-    if (!m_context->initialize()) {
+    if (!m_context->initialize(startup_settings)) {
         LIBGUI_EXCEPTION_THROW("Failed to initialize context.");
     }
 
     // Initialize ImGUI
-    if (!internal_initialize_imgui()) {
+    if (!internal_initialize_imgui(startup_settings)) {
         LIBGUI_EXCEPTION_THROW("Failed to initialize ImGUI.");
     }
 }
@@ -70,15 +70,6 @@ void window::event_loop() {
     // Cancel event loop if failed to initialize
     if (!initialize())
         return;
-
-    bool has_multi_viewport = false;
-
-    {
-        auto settings = m_context->get_settings();
-        if (!settings) return;
-
-        has_multi_viewport = settings->enable_multi_viewport;
-    }
 
     while (m_context && !m_context->is_closing()) {
         /*
@@ -107,9 +98,7 @@ void window::event_loop() {
         // Disable window dragging when:
         //      Mouse is over an ImGUI item
         //      A modal is visible
-        if (m_context->is_borderless()) {
-            LIBGUI_SET_FLAG(m_titlebar_flags, LIBGUI_WTB_SKIP, ImGui::IsAnyItemHovered() || ImGui::GetTopMostAndVisiblePopupModal());
-        }
+        LIBGUI_SET_FLAG(m_titlebar_flags, LIBGUI_WTB_SKIP, ImGui::IsAnyItemHovered() || ImGui::GetTopMostAndVisiblePopupModal());
 
         LIBGUI_IMGUI_OPENGL_NEW_FRAME();
         ImGui_ImplGlfw_NewFrame();
@@ -122,7 +111,7 @@ void window::event_loop() {
         LIBGUI_IMGUI_OPENGL_RENDER(ImGui::GetDrawData());
         ImGui::EndFrame();
 
-        if (has_multi_viewport) {
+        if (m_multi_viewport) {
             auto backup_context = glfwGetCurrentContext();
             ImGui::UpdatePlatformWindows();
             ImGui::RenderPlatformWindowsDefault();
@@ -243,21 +232,19 @@ void window::clear_frame_buffer(float r, float g, float b) {
 ///////////////////////////////////////////////////////////////////////////////
 // PRIVATE
 
-bool window::internal_initialize_imgui() {
-    auto settings = m_context->get_settings();
-    if (!settings)
-        return false;
-
+bool window::internal_initialize_imgui(const window_startup_settings& startup_settings) {
     ImGui::CreateContext();
 
     ImGuiIO& io = ImGui::GetIO();
     io.IniFilename = NULL;
 
-    if (settings->enable_docking)
+    if (startup_settings.imgui_docking)
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-    if (settings->enable_multi_viewport)
+    if (startup_settings.imgui_multi_viewport)
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+
+    m_multi_viewport = startup_settings.imgui_multi_viewport;
 
     if (!ImGui_ImplGlfw_InitForOpenGL(m_context->get_glfw_handle(), true))
         return false;

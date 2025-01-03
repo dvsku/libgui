@@ -25,7 +25,9 @@ namespace libgui {
         };
 
     public:
-        window(const window_settings& settings);
+        window(const window_settings& settings,
+            const window_startup_settings& startup_settings);
+
     	virtual ~window();
 
     public:
@@ -129,7 +131,10 @@ namespace libgui {
         ev::event_system                           m_event_system = {};
 
     private:
-        bool internal_initialize_imgui();
+        bool m_multi_viewport = false;
+
+    private:
+        bool internal_initialize_imgui(const window_startup_settings& startup_settings);
         void internal_teardown_imgui();
     };
 }
