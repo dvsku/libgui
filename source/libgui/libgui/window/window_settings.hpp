@@ -1,55 +1,51 @@
 #pragma once
 
+#include "libgui/misc/sizing.hpp"
+
 #include <string>
-#include <cstdint>
 
 namespace libgui {
     struct window_settings {
-        // Initial window width.
-        // Not affected by changes post startup.
-        uint32_t width = 1024U;
-
-        // Initial window height.
-        // Not affected by changes post startup.
-        uint32_t height = 768U;
-
         // Window title.
         std::string title = "libgui window";
 
-        // Make window resizable.
-        // Non-resizable windows are locked to current width and height.
-        bool resizable = true;
-
-        // Make window borderless.
-        // Borderless windows must implement custom title bar.
-        bool borderless = false;
-
-        // Center window on startup.
-        // Not affected by changes post startup.
-        bool center_on_startup = true;
-
-        // Maximize on startup.
-        // Not affected by changes post startup.
-        bool maximize_on_startup = false;
-
-        // Minimized to system tray on startup.
-        // Not affected by changes post startup.
-        bool minimized_to_st_on_startup = false;
-
-        // Minimize to system tray when clicking.
-        // on minimize (-) button in the titlebar.
+        // Minimize to system tray when
+        // clicking on minimize (-) button in the titlebar.
         bool minimize_to_st_on_minimize = false;
 
-        // Minimize to system tray when clicking.
-        // on close (x) button in the titlebar.
+        // Minimize to system tray when
+        // clicking on close (x) button in the titlebar.
         bool minimize_to_st_on_close = false;
+    };
+
+    // Settings that are only applied on startup.
+    struct window_startup_settings {
+        // Window size.
+        libgui::size_i size = { 1024, 768 };
+
+        // Window minimum size.
+        libgui::size_i minimum_size = { -1, -1 };
+
+        // Is window resizable?
+        // If TRUE the window can be resized.
+        // If FALSE the window will be locked to initial width/height.
+        //
+        // If window is not resizable, it's also not maximizable.
+        bool resizable = true;
+
+        // Is the window centered on startup?
+        bool centered = true;
+
+        // Is the window maximized on startup?
+        bool maximized = false;
+
+        // Is the window minimized to system tray on startup?
+        bool minimized_to_st = false;
 
         // Enable/disable ImGUI docking.
-        // Not affected by changes post startup.
-        bool enable_docking = true;
+        bool imgui_docking = true;
 
         // Enable/disable ImGUI multi-viewport support.
-        // Not affected by changes post startup.
-        bool enable_multi_viewport = false;
+        bool imgui_multi_viewport = false;
     };
 }
