@@ -17,7 +17,7 @@ using namespace libgui::internals;
 ///////////////////////////////////////////////////////////////////////////////
 // PUBLIC
 
-window_context::window_context(window* window, const window_settings& settings,
+window_context::window_context(window_base* window, const window_settings& settings,
     const window_startup_settings& startup_settings)
     : m_wnd(window), m_settings(settings)
 {
@@ -182,6 +182,7 @@ void window_context::set_maximized(bool value) {
         return;
 
     if (!is_maximized() && value) {
+        //ShowWindow(get_win32_handle(), SW_SHOWMAXIMIZED);
         glfwMaximizeWindow(m_glfw_handle);
     }
     else if (is_maximized() && !value) {
@@ -196,7 +197,7 @@ bool window_context::set_resizable(bool value) {
     bool resizable = is_resizable();
 
     if (!resizable && value) {
-        glfwSetWindowSizeLimits(m_glfw_handle, GLFW_DONT_CARE, GLFW_DONT_CARE, GLFW_DONT_CARE, GLFW_DONT_CARE);
+        glfwSetWindowSizeLimits(m_glfw_handle, GLFW_DONT_CARE, GLFW_DONT_CARE, 800, 600);
     }
     else if (resizable && !value) {
         int width  = 0U;
@@ -623,7 +624,7 @@ LRESULT window_context::internal_wndproc_wmnccalcsize(WPARAM wparam, LPARAM lpar
 
 LRESULT window_context::internal_wndproc_wmnchittest(WPARAM wparam, LPARAM lparam) {
     LRESULT def_result = CallWindowProc(m_default_wndproc_callback, get_win32_handle(), WM_NCHITTEST, wparam, lparam);
-    auto    flags      = m_wnd->m_titlebar_flags;
+    auto    flags      = m_wnd->tb_flags;
     
     // Title bar hit testing
 
@@ -728,7 +729,7 @@ LRESULT window_context::internal_wndproc_wmgetminmaxinfo(WPARAM wparam, LPARAM l
 }
 
 LRESULT window_context::internal_wndproc_wmnclbuttondown(WPARAM wparam, LPARAM lparam) {
-    auto& flags = m_wnd->m_titlebar_flags;
+    auto& flags = m_wnd->tb_flags;
 
     if (wparam == HTMINBUTTON) {
         LIBGUI_SET_FLAG(flags, LIBGUI_WTB_LDOWN_MINIMIZE, true);
@@ -753,7 +754,7 @@ LRESULT window_context::internal_wndproc_wmnclbuttondown(WPARAM wparam, LPARAM l
 }
 
 LRESULT window_context::internal_wndproc_wmnclbuttonup(WPARAM wparam, LPARAM lparam) {
-    auto& flags = m_wnd->m_titlebar_flags;
+    auto& flags = m_wnd->tb_flags;
 
     if (wparam == HTMINBUTTON) {
         if (LIBGUI_HAS_FLAG(flags, LIBGUI_WTB_LDOWN_MINIMIZE)) {
@@ -861,6 +862,7 @@ void window_context::internal_event_callback(const libgui::internals::ev::ev_fra
 void window_context::internal_event_callback(const libgui::internals::ev::ev_update_settings& event) {
     m_settings = event.settings;
     
+    // TODO: Update title
 
     // Fire settings updated event
 

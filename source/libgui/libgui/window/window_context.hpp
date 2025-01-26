@@ -10,7 +10,7 @@
 #include "libgui/defines/imgui.hpp"
 #include "libgui/defines/windowing.hpp"
 #include "libgui/defines/libgui.hpp"
-#include "libgui/window/window.hpp"
+#include "libgui/window/window_base.hpp"
 #include "libgui/event/events_internal.hpp"
 
 // Is minimized to taskbar?
@@ -38,7 +38,7 @@ namespace libgui::internals {
     public:
         window_context() = delete;
 
-        window_context(window* window, const window_settings& settings,
+        window_context(window_base* window, const window_settings& settings,
             const window_startup_settings& startup_settings);
 
         ~window_context();
@@ -108,7 +108,7 @@ namespace libgui::internals {
 
     private:
         // Handle to libgui window instance.
-        window* m_wnd = nullptr;
+        window_base* m_wnd = nullptr;
 
         // Window settings.
         window_settings m_settings = {};
@@ -153,7 +153,7 @@ namespace libgui::internals {
 
         template<typename T>
         requires libgui::ev::is_event<T, libgui::ev::event>
-        window::event_callback_handle_t internal_event_attach(std::function<void(const T&)> callback)
+        window_base::event_callback_handle_t internal_event_attach(std::function<void(const T&)> callback)
         {
             if (!m_wnd) return {};
             return m_wnd->m_event_system.append_callback<T>(callback);
