@@ -1,23 +1,26 @@
-#include "libgui/internals/contexts/backend_context.hpp"
-#include "libgui/internals/contexts/context_factory.hpp"
+#include "libgui/extensions/imgui/app/window/imgui_window.hpp"
+#include "libgui/extensions/imgui/app/internals/contexts/imgui_context_factory.hpp"
 #include "libgui/utilities/string.hpp"
-#include "libgui/window/window.hpp"
 
-using namespace libgui;
+using namespace libgui::ex::imgui;
 
 ///////////////////////////////////////////////////////////////////////////////
 // PUBLIC
+///////////////////////////////////////////////////////////////////////////////
 
-window::window() : window_base() {}
+imgui_window::imgui_window()
+    : window_base() {}
 
-window::~window() {
+imgui_window::~imgui_window() {
     teardown();
 }
 
-libgui::result window::initialize(const window_settings& settings, const window_startup_settings& startup_settings) {
+libgui::result imgui_window::initialize(const window_settings& settings,
+    const imgui_window_startup_settings& startup_settings)
+{
     libgui::result result, res;
 
-    m_backend_context = internals::context_factory::create_backend_context(this);
+    m_backend_context = internals::imgui_context_factory::create_backend_context(this);
     if (!m_backend_context) {
         result.message = "Failed to create backend context.";
         return result;
@@ -33,14 +36,14 @@ libgui::result window::initialize(const window_settings& settings, const window_
     return result;
 }
 
-void window::teardown() {
+void imgui_window::teardown() {
     if (m_backend_context) {
         m_backend_context->teardown();
         m_backend_context.release();
     }
 }
 
-void window::prepare_for_drawing() {
+void imgui_window::prepare_for_drawing() {
     if (!m_backend_context) {
         return;
     }
@@ -48,7 +51,7 @@ void window::prepare_for_drawing() {
     m_backend_context->prepare_for_drawing();
 }
 
-void window::draw() {
+void imgui_window::draw() {
     if (!m_backend_context) {
         return;
     }

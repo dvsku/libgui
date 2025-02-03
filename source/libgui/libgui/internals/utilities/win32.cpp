@@ -1,4 +1,4 @@
-#include "libgui/internals/win32.hpp"
+#include "libgui/internals/utilities/win32.hpp"
 
 using namespace libgui::internals;
 

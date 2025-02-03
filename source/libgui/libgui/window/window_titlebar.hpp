@@ -22,5 +22,5 @@
 #define LIBGUI_WTB_MO_CLOSE 1 << 3
 
 namespace libgui {
-    using window_titlebar_flags = int32_t;
+    using wtb_flags_t = int32_t;
 }

@@ -41,11 +41,5 @@ namespace libgui {
 
         // Is the window minimized to system tray on startup?
         bool minimized_to_st = false;
-
-        // Enable/disable ImGUI docking.
-        bool imgui_docking = true;
-
-        // Enable/disable ImGUI multi-viewport support.
-        bool imgui_multi_viewport = false;
     };
 }

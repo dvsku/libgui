@@ -1,5 +1,5 @@
-#include "libgui/internals/glfw.hpp"
-#include "libgui/defines/windowing.hpp"
+#include "libgui/internals/utilities/glfw.hpp"
+#include "libgui/defines/backends/glfw.hpp"
 
 using namespace libgui::internals;
 

@@ -9,7 +9,10 @@ namespace libgui {
         virtual ~window();
 
     public:
-        bool initialize(const window_settings& settings = {}, const window_startup_settings& startup_settings = {});
+        // Initialize window.
+        libgui::result initialize(const window_settings& settings = {}, const window_startup_settings& startup_settings = {});
+        
+        // Teardown window.
         void teardown();
 
     public:
