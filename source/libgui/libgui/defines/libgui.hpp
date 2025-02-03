@@ -1,7 +1,4 @@
 #pragma once
 
-#include <cstdint>
-
-namespace libgui {
-    using flags_t = uint64_t;
-}
+#define LIBGUI_BACKEND_GLFW_OPENGL2 1
+#define LIBGUI_BACKEND_GLFW_OPENGL3 2

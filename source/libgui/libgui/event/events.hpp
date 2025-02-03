@@ -24,39 +24,6 @@ namespace libgui::ev {
     // Cancel event in callback to disable/override default behavior.
     struct ev_close : window_event {};
 
-    // Sent on window minimize request.
-    // This event is not sent when window::minimize_to_*() is called.
-    // Source can be:
-    //      Clicking on minimize (-) button
-    //      Title bar context menu minimize
-    //      etc...
-    // 
-    // Default behavior:
-    //      Minimizes the window to taskbar or to system tray if enabled in settings.
-    // 
-    // Cancel event in callback to disable/override default behavior.
-    struct ev_minimize : window_event {};
-
-    // Sent when window has been minimized.
-    struct ev_minimized : window_event {};
-
-    // Sent on window minimize restore request.
-    // This event is not sent when window::minimize_restore() is called.
-    // Source can be:
-    //      Clicking icon in taskbar
-    //      Clicking icon in system tray
-    //      ALT + TAB
-    //      etc...
-    // 
-    // Default behavior:
-    //      Restores window from minimized state.
-    // 
-    // Cancel event in callback to disable/override default behavior.
-    struct ev_minimize_restore : window_event {};
-
-    // Sent when window has been restored from minimize.
-    struct ev_minimize_restored : window_event {};
-
     // Sent on window maximize request.
     // This event is not sent when window::maximize() is called.
     // Source can be:
@@ -73,6 +40,38 @@ namespace libgui::ev {
     // Sent when window has been maximized.
     struct ev_maximized : window_event {};
 
+    // Sent on window minimize request.
+    // This event is not sent when window::minimize_to_*() is called.
+    // Source can be:
+    //      Clicking on minimize (-) button
+    //      Title bar context menu minimize
+    //      etc...
+    // 
+    // Default behavior:
+    //      Minimizes the window to taskbar or to system tray if enabled in settings.
+    // 
+    // Cancel event in callback to disable/override default behavior.
+    struct ev_minimize_to_tb : window_event {};
+
+    // Sent when window has been minimized.
+    struct ev_minimized_to_tb : window_event {};
+
+    // Sent on window minimize request.
+    // This event is not sent when window::minimize_to_*() is called.
+    // Source can be:
+    //      Clicking on minimize (-) button
+    //      Title bar context menu minimize
+    //      etc...
+    // 
+    // Default behavior:
+    //      Minimizes the window to taskbar or to system tray if enabled in settings.
+    // 
+    // Cancel event in callback to disable/override default behavior.
+    struct ev_minimize_to_st : window_event {};
+
+    // Sent when window has been minimized.
+    struct ev_minimized_to_st : window_event {};
+
     // Sent on window maximize restore request.
     // This event is not sent when window::maximize_restore() is called.
     // Source can be:
@@ -88,6 +87,44 @@ namespace libgui::ev {
 
     // Sent when window has been restored from maximized to windowed mode.
     struct ev_maximize_restored : window_event {};
+
+    // Sent on window minimize restore request.
+    // This event is not sent when window::minimize_restore() is called.
+    // Source can be:
+    //      Clicking icon in taskbar
+    //      Clicking icon in system tray
+    //      ALT + TAB
+    //      etc...
+    // 
+    // Default behavior:
+    //      Restores window from minimized state.
+    // 
+    // Cancel event in callback to disable/override default behavior.
+    struct ev_minimize_restore_from_tb : window_event {};
+
+    // Sent when window has been restored from minimize.
+    struct ev_minimize_restored_from_tb : window_event {};
+
+    // Sent on window minimize restore request.
+    // This event is not sent when window::minimize_restore() is called.
+    // Source can be:
+    //      Clicking icon in taskbar
+    //      Clicking icon in system tray
+    //      ALT + TAB
+    //      etc...
+    // 
+    // Default behavior:
+    //      Restores window from minimized state.
+    // 
+    // Cancel event in callback to disable/override default behavior.
+    struct ev_minimize_restore_from_st : window_event {};
+
+    // Sent when window has been restored from minimize.
+    struct ev_minimize_restored_from_st : window_event {};
+
+    
+
+    
 
     // Sent when window has been resized.
     // Size is in screen coordinates, not pixels (even tho they might be the same).

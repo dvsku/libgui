@@ -1,24 +1,22 @@
 #pragma once
 
+#include "libgui/internals/window/window_base.hpp"
 #include "libgui/window/window_settings.hpp"
 #include "libgui/window/window_taskbar.hpp"
 #include "libgui/window/window_titlebar.hpp"
-#include "libgui/event/event_system.hpp"
-#include "libgui/event/events.hpp"
-
-#include <memory>
-
-namespace libgui::internals {
-    class window_context;
-}
+#include "libgui/misc/result.hpp"
 
 namespace libgui {
-    class window_base {
+    class window_base : protected internals::window_base {
     public:
         using event_callback_handle_t = ev::event_system::handle_t;
 
     public:
         wtb_flags_t tb_flags = 0;
+
+    public:
+        window_base();
+        virtual ~window_base();
 
     public:
         // Get window settings.
@@ -32,7 +30,7 @@ namespace libgui {
         // Does invoke ev_close event.
         // 
         // Provides the same behavior as the close (X) button.
-        void close();
+        void close(bool force = false);
 
         // Minimize the window to taskbar.
         void minimize_to_tb();
@@ -95,12 +93,5 @@ namespace libgui {
 
         // Execute draw instructions.
         virtual void draw() = 0;
-
-    protected:
-        friend internals::window_context;
-
-    protected:
-        std::unique_ptr<internals::window_context> m_context      = nullptr;
-        ev::event_system                           m_event_system = {};
     };
 }

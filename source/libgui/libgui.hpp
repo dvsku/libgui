@@ -3,9 +3,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 // CORE
 
-#include "libgui/window.hpp"
+#include "libgui/runtime.hpp"
+#include "libgui/window/window.hpp"
 #include "libgui/systems/sys_command.hpp"
-#include "libgui/misc/texture.hpp"
 #include "libgui/misc/version.hpp"
 #include "libgui/theme.hpp"
 #include "libgui/imgui_extensions.hpp"
@@ -27,3 +27,9 @@
 // DEBUG
 
 #include "libgui/debug/debug.hpp"
+
+///////////////////////////////////////////////////////////////////////////////
+// EXTENSIONS
+
+#include "libgui/extensions/app/app.hpp"
+#include "libgui/extensions/imgui/imgui.hpp"

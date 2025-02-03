@@ -1,13 +1,13 @@
 #pragma once
 
+#include "libgui/extensions/imgui/defines/imgui.hpp"
+#include "libgui/fonts/font.hpp"
+
 #include <typeindex>
 #include <typeinfo>
 #include <map>
 #include <unordered_map>
 #include <vector>
-
-#include "libgui/imgui.hpp"
-#include "libgui/fonts/font.hpp"
 
 namespace libgui {
     ////////////////////////////////////////////////////////////////////////////
